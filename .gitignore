@@ -6,7 +6,7 @@ z7_hdmi_driver/ip/vivado-library
 vivado/*.cache/
 vivado/*.hw/
 vivado/*.runs/
-vivado/*.srcs/sources_1/bd/
+vivado/*.srcs/sources_1/bd/mref
 vivado/NA/
 vivado/*.jou
 vivado/*.log

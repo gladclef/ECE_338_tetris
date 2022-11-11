@@ -3,7 +3,7 @@
 <!--                                                         -->
 <!-- Copyright 1986-2020 Xilinx, Inc. All Rights Reserved.   -->
 
-<Project Version="7" Minor="54" Path="C:/Users/gladc/Documents/School/UNM/ECE_595_intermediate_logic_design/project/vivado/hdmi_driver.xpr">
+<Project Version="7" Minor="54" Path="C:/Users/gladc/Documents/School/UNM/ECE_595_intermediate_logic_design/project/vivado/tetris.xpr">
   <DefaultLaunch Dir="$PRUNDIR"/>
   <Configuration>
     <Option Name="Id" Val="f8fd7b70a95d49eb9ea20a8ce350f765"/>
