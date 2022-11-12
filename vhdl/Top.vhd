@@ -43,7 +43,9 @@ entity Top is
       hdmi_hsync : out STD_LOGIC;
       hdmi_vsync : out STD_LOGIC;
       hdmi_enable : out STD_LOGIC;
-      sw_r, sw_g, sw_b : in STD_LOGIC
+      sw_r, sw_g, sw_b : in STD_LOGIC;
+      pix_en : out STD_LOGIC;
+      pix_addr : out STD_LOGIC_VECTOR ( 18 downto 0 ) -- 640x480=307200
   --    DEBUG_IN: in std_logic;
    --   DEBUG_OUT: out std_logic
       );
@@ -65,8 +67,11 @@ architecture beh of Top is
 -- Signal declarations
    signal RESET_final: std_logic;
 
+   signal hdmi_hsync_sig : std_logic;
+   signal hdmi_vsync_sig : std_logic;
    signal pixel_x : unsigned(10 downto 0);
    signal pixel_y : unsigned(9 downto 0);
+   signal pix_addr_sig : std_logic_vector(19 downto 0);
 
    signal LM_ULM_start, LM_ULM_ready: std_logic;
    signal LM_ULM_stopped, LM_ULM_continue: std_logic;
@@ -132,8 +137,8 @@ architecture beh of Top is
        port map (
         clk => clk,
         reset => reset,
-        hdmi_hsync => hdmi_hsync,
-        hdmi_vsync => hdmi_vsync,
+        hdmi_hsync => hdmi_hsync_sig,
+        hdmi_vsync => hdmi_vsync_sig,
         hdmi_enable => hdmi_enable,
         pixel_x => pixel_x,
         pixel_y => pixel_y
@@ -144,6 +149,11 @@ architecture beh of Top is
     hdmi_red <= "11111111" when sw_r = '1' else (others => '0');
     hdmi_green <= "11111111" when sw_g = '1' else (others => '0');
     hdmi_blue <= "11111111" when sw_b = '1' else (others => '0');
+    hdmi_hsync <= hdmi_hsync_sig;
+    hdmi_vsync <= hdmi_vsync_sig;
+    pix_en <= hdmi_hsync_sig or hdmi_vsync_sig;
+    pix_addr_sig <= std_logic_vector( unsigned(pixel_x) + unsigned(pixel_y)*480 );
+    pix_addr <= pix_addr_sig(18 downto 0);
 
 end beh;
 

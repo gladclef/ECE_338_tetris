@@ -1,7 +1,7 @@
 --Copyright 1986-2020 Xilinx, Inc. All Rights Reserved.
 ----------------------------------------------------------------------------------
 --Tool Version: Vivado v.2020.2 (win64) Build 3064766 Wed Nov 18 09:12:45 MST 2020
---Date        : Thu Nov 10 23:26:41 2022
+--Date        : Sat Nov 12 01:29:39 2022
 --Host        : BENS-DESKTOP running 64-bit major release  (build 9200)
 --Command     : generate_target design_1_wrapper.bd
 --Design      : design_1_wrapper
@@ -52,16 +52,6 @@ architecture STRUCTURE of design_1_wrapper is
     sw_r : in STD_LOGIC;
     sw_g : in STD_LOGIC;
     sw_b : in STD_LOGIC;
-    hdmi_out_clk_p : out STD_LOGIC;
-    hdmi_out_clk_n : out STD_LOGIC;
-    hdmi_out_data_p : out STD_LOGIC_VECTOR ( 2 downto 0 );
-    hdmi_out_data_n : out STD_LOGIC_VECTOR ( 2 downto 0 );
-    FIXED_IO_mio : inout STD_LOGIC_VECTOR ( 53 downto 0 );
-    FIXED_IO_ddr_vrn : inout STD_LOGIC;
-    FIXED_IO_ddr_vrp : inout STD_LOGIC;
-    FIXED_IO_ps_srstb : inout STD_LOGIC;
-    FIXED_IO_ps_clk : inout STD_LOGIC;
-    FIXED_IO_ps_porb : inout STD_LOGIC;
     DDR_cas_n : inout STD_LOGIC;
     DDR_cke : inout STD_LOGIC;
     DDR_ck_n : inout STD_LOGIC;
@@ -76,7 +66,17 @@ architecture STRUCTURE of design_1_wrapper is
     DDR_dm : inout STD_LOGIC_VECTOR ( 3 downto 0 );
     DDR_dq : inout STD_LOGIC_VECTOR ( 31 downto 0 );
     DDR_dqs_n : inout STD_LOGIC_VECTOR ( 3 downto 0 );
-    DDR_dqs_p : inout STD_LOGIC_VECTOR ( 3 downto 0 )
+    DDR_dqs_p : inout STD_LOGIC_VECTOR ( 3 downto 0 );
+    FIXED_IO_mio : inout STD_LOGIC_VECTOR ( 53 downto 0 );
+    FIXED_IO_ddr_vrn : inout STD_LOGIC;
+    FIXED_IO_ddr_vrp : inout STD_LOGIC;
+    FIXED_IO_ps_srstb : inout STD_LOGIC;
+    FIXED_IO_ps_clk : inout STD_LOGIC;
+    FIXED_IO_ps_porb : inout STD_LOGIC;
+    hdmi_out_clk_p : out STD_LOGIC;
+    hdmi_out_clk_n : out STD_LOGIC;
+    hdmi_out_data_p : out STD_LOGIC_VECTOR ( 2 downto 0 );
+    hdmi_out_data_n : out STD_LOGIC_VECTOR ( 2 downto 0 )
   );
   end component design_1;
 begin

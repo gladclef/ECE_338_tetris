@@ -1,7 +1,7 @@
 --Copyright 1986-2020 Xilinx, Inc. All Rights Reserved.
 ----------------------------------------------------------------------------------
 --Tool Version: Vivado v.2020.2 (win64) Build 3064766 Wed Nov 18 09:12:45 MST 2020
---Date        : Thu Nov 10 23:26:41 2022
+--Date        : Sat Nov 12 01:29:39 2022
 --Host        : BENS-DESKTOP running 64-bit major release  (build 9200)
 --Command     : generate_target design_1.bd
 --Design      : design_1
@@ -609,50 +609,21 @@ entity design_1 is
     sw_r : in STD_LOGIC
   );
   attribute CORE_GENERATION_INFO : string;
-  attribute CORE_GENERATION_INFO of design_1 : entity is "design_1,IP_Integrator,{x_ipVendor=xilinx.com,x_ipLibrary=BlockDiagram,x_ipName=design_1,x_ipVersion=1.00.a,x_ipLanguage=VHDL,numBlks=11,numReposBlks=9,numNonXlnxBlks=1,numHierBlks=2,maxHierDepth=0,numSysgenBlks=0,numHlsBlks=0,numHdlrefBlks=1,numPkgbdBlks=0,bdsource=USER,da_axi4_cnt=1,da_board_cnt=1,da_ps7_cnt=1,synth_mode=OOC_per_IP}";
+  attribute CORE_GENERATION_INFO of design_1 : entity is "design_1,IP_Integrator,{x_ipVendor=xilinx.com,x_ipLibrary=BlockDiagram,x_ipName=design_1,x_ipVersion=1.00.a,x_ipLanguage=VHDL,numBlks=13,numReposBlks=11,numNonXlnxBlks=1,numHierBlks=2,maxHierDepth=0,numSysgenBlks=0,numHlsBlks=0,numHdlrefBlks=3,numPkgbdBlks=0,bdsource=USER,synth_mode=OOC_per_IP}";
   attribute HW_HANDOFF : string;
   attribute HW_HANDOFF of design_1 : entity is "design_1.hwdef";
 end design_1;
 
 architecture STRUCTURE of design_1 is
-  component design_1_Top_0_0 is
-  port (
-    Clk : in STD_LOGIC;
-    reset : in STD_LOGIC;
-    GPIO_Ins : in STD_LOGIC_VECTOR ( 31 downto 0 );
-    GPIO_Outs : out STD_LOGIC_VECTOR ( 31 downto 0 );
-    PNL_BRAM_addr : out STD_LOGIC_VECTOR ( 12 downto 0 );
-    PNL_BRAM_din : out STD_LOGIC_VECTOR ( 15 downto 0 );
-    PNL_BRAM_dout : in STD_LOGIC_VECTOR ( 15 downto 0 );
-    PNL_BRAM_we : out STD_LOGIC_VECTOR ( 0 to 0 );
-    hdmi_red : out STD_LOGIC_VECTOR ( 7 downto 0 );
-    hdmi_green : out STD_LOGIC_VECTOR ( 7 downto 0 );
-    hdmi_blue : out STD_LOGIC_VECTOR ( 7 downto 0 );
-    hdmi_hsync : out STD_LOGIC;
-    hdmi_vsync : out STD_LOGIC;
-    hdmi_enable : out STD_LOGIC;
-    sw_r : in STD_LOGIC;
-    sw_g : in STD_LOGIC;
-    sw_b : in STD_LOGIC
-  );
-  end component design_1_Top_0_0;
   component design_1_blk_mem_gen_0_0 is
   port (
     clka : in STD_LOGIC;
     wea : in STD_LOGIC_VECTOR ( 0 to 0 );
-    addra : in STD_LOGIC_VECTOR ( 12 downto 0 );
+    addra : in STD_LOGIC_VECTOR ( 3 downto 0 );
     dina : in STD_LOGIC_VECTOR ( 15 downto 0 );
     douta : out STD_LOGIC_VECTOR ( 15 downto 0 )
   );
   end component design_1_blk_mem_gen_0_0;
-  component design_1_xlconcat_0_0 is
-  port (
-    In0 : in STD_LOGIC_VECTOR ( 7 downto 0 );
-    In1 : in STD_LOGIC_VECTOR ( 7 downto 0 );
-    In2 : in STD_LOGIC_VECTOR ( 7 downto 0 );
-    dout : out STD_LOGIC_VECTOR ( 23 downto 0 )
-  );
-  end component design_1_xlconcat_0_0;
   component design_1_axi_gpio_0_0 is
   port (
     s_axi_aclk : in STD_LOGIC;
@@ -783,6 +754,54 @@ architecture STRUCTURE of design_1 is
     peripheral_aresetn : out STD_LOGIC_VECTOR ( 0 to 0 )
   );
   end component design_1_rst_ps7_0_50M_0;
+  component design_1_blk_mem_gen_1_0 is
+  port (
+    clka : in STD_LOGIC;
+    wea : in STD_LOGIC_VECTOR ( 0 to 0 );
+    addra : in STD_LOGIC_VECTOR ( 18 downto 0 );
+    dina : in STD_LOGIC_VECTOR ( 2 downto 0 );
+    douta : out STD_LOGIC_VECTOR ( 2 downto 0 )
+  );
+  end component design_1_blk_mem_gen_1_0;
+  component design_1_ColorDecoder_0_0 is
+  port (
+    COLOR3 : in STD_LOGIC_VECTOR ( 2 downto 0 );
+    RGB24 : out STD_LOGIC_VECTOR ( 23 downto 0 )
+  );
+  end component design_1_ColorDecoder_0_0;
+  component design_1_SelectLeft_0_0 is
+  port (
+    R : in STD_LOGIC_VECTOR ( 7 downto 0 );
+    G : in STD_LOGIC_VECTOR ( 7 downto 0 );
+    B : in STD_LOGIC_VECTOR ( 7 downto 0 );
+    RGB3 : out STD_LOGIC_VECTOR ( 2 downto 0 )
+  );
+  end component design_1_SelectLeft_0_0;
+  component design_1_Top_0_0 is
+  port (
+    Clk : in STD_LOGIC;
+    reset : in STD_LOGIC;
+    GPIO_Ins : in STD_LOGIC_VECTOR ( 31 downto 0 );
+    GPIO_Outs : out STD_LOGIC_VECTOR ( 31 downto 0 );
+    PNL_BRAM_addr : out STD_LOGIC_VECTOR ( 12 downto 0 );
+    PNL_BRAM_din : out STD_LOGIC_VECTOR ( 15 downto 0 );
+    PNL_BRAM_dout : in STD_LOGIC_VECTOR ( 15 downto 0 );
+    PNL_BRAM_we : out STD_LOGIC_VECTOR ( 0 to 0 );
+    hdmi_red : out STD_LOGIC_VECTOR ( 7 downto 0 );
+    hdmi_green : out STD_LOGIC_VECTOR ( 7 downto 0 );
+    hdmi_blue : out STD_LOGIC_VECTOR ( 7 downto 0 );
+    hdmi_hsync : out STD_LOGIC;
+    hdmi_vsync : out STD_LOGIC;
+    hdmi_enable : out STD_LOGIC;
+    sw_r : in STD_LOGIC;
+    sw_g : in STD_LOGIC;
+    sw_b : in STD_LOGIC;
+    pix_en : out STD_LOGIC;
+    pix_addr : out STD_LOGIC_VECTOR ( 18 downto 0 )
+  );
+  end component design_1_Top_0_0;
+  signal ColorDecoder_0_RGB24 : STD_LOGIC_VECTOR ( 23 downto 0 );
+  signal SelectLeft_0_RGB3 : STD_LOGIC_VECTOR ( 2 downto 0 );
   signal Top_0_GPIO_Outs : STD_LOGIC_VECTOR ( 31 downto 0 );
   signal Top_0_PNL_BRAM_addr : STD_LOGIC_VECTOR ( 12 downto 0 );
   signal Top_0_PNL_BRAM_din : STD_LOGIC_VECTOR ( 15 downto 0 );
@@ -793,8 +812,11 @@ architecture STRUCTURE of design_1 is
   signal Top_0_hdmi_hsync : STD_LOGIC;
   signal Top_0_hdmi_red : STD_LOGIC_VECTOR ( 7 downto 0 );
   signal Top_0_hdmi_vsync : STD_LOGIC;
+  signal Top_0_pix_addr : STD_LOGIC_VECTOR ( 18 downto 0 );
+  signal Top_0_pix_en : STD_LOGIC;
   signal axi_gpio_0_gpio2_io_o : STD_LOGIC_VECTOR ( 31 downto 0 );
   signal blk_mem_gen_0_douta : STD_LOGIC_VECTOR ( 15 downto 0 );
+  signal blk_mem_gen_1_douta : STD_LOGIC_VECTOR ( 2 downto 0 );
   signal clk_wiz_0_clk_fast : STD_LOGIC;
   signal clk_wiz_0_clk_slow : STD_LOGIC;
   signal processing_system7_0_DDR_ADDR : STD_LOGIC_VECTOR ( 14 downto 0 );
@@ -885,7 +907,6 @@ architecture STRUCTURE of design_1 is
   signal sw_b_1 : STD_LOGIC;
   signal sw_g_1 : STD_LOGIC;
   signal sw_r_1 : STD_LOGIC;
-  signal xlconcat_0_dout : STD_LOGIC_VECTOR ( 23 downto 0 );
   signal NLW_processing_system7_0_USB0_VBUS_PWRSELECT_UNCONNECTED : STD_LOGIC;
   signal NLW_processing_system7_0_USB0_PORT_INDCTL_UNCONNECTED : STD_LOGIC_VECTOR ( 1 downto 0 );
   signal NLW_rst_ps7_0_50M_mb_reset_UNCONNECTED : STD_LOGIC;
@@ -931,6 +952,18 @@ begin
   sw_b_1 <= sw_b;
   sw_g_1 <= sw_g;
   sw_r_1 <= sw_r;
+ColorDecoder_0: component design_1_ColorDecoder_0_0
+     port map (
+      COLOR3(2 downto 0) => blk_mem_gen_1_douta(2 downto 0),
+      RGB24(23 downto 0) => ColorDecoder_0_RGB24(23 downto 0)
+    );
+SelectLeft_0: component design_1_SelectLeft_0_0
+     port map (
+      B(7 downto 0) => Top_0_hdmi_blue(7 downto 0),
+      G(7 downto 0) => Top_0_hdmi_green(7 downto 0),
+      R(7 downto 0) => Top_0_hdmi_red(7 downto 0),
+      RGB3(2 downto 0) => SelectLeft_0_RGB3(2 downto 0)
+    );
 Top_0: component design_1_Top_0_0
      port map (
       Clk => clk_wiz_0_clk_slow,
@@ -946,6 +979,8 @@ Top_0: component design_1_Top_0_0
       hdmi_hsync => Top_0_hdmi_hsync,
       hdmi_red(7 downto 0) => Top_0_hdmi_red(7 downto 0),
       hdmi_vsync => Top_0_hdmi_vsync,
+      pix_addr(18 downto 0) => Top_0_pix_addr(18 downto 0),
+      pix_en => Top_0_pix_en,
       reset => reset_1,
       sw_b => sw_b_1,
       sw_g => sw_g_1,
@@ -977,11 +1012,19 @@ axi_gpio_0: component design_1_axi_gpio_0_0
     );
 blk_mem_gen_0: component design_1_blk_mem_gen_0_0
      port map (
-      addra(12 downto 0) => Top_0_PNL_BRAM_addr(12 downto 0),
+      addra(3 downto 0) => Top_0_PNL_BRAM_addr(3 downto 0),
       clka => clk_wiz_0_clk_slow,
       dina(15 downto 0) => Top_0_PNL_BRAM_din(15 downto 0),
       douta(15 downto 0) => blk_mem_gen_0_douta(15 downto 0),
       wea(0) => Top_0_PNL_BRAM_we(0)
+    );
+blk_mem_gen_1: component design_1_blk_mem_gen_1_0
+     port map (
+      addra(18 downto 0) => Top_0_pix_addr(18 downto 0),
+      clka => clk_wiz_0_clk_slow,
+      dina(2 downto 0) => SelectLeft_0_RGB3(2 downto 0),
+      douta(2 downto 0) => blk_mem_gen_1_douta(2 downto 0),
+      wea(0) => Top_0_pix_en
     );
 clk_wiz_0: component design_1_clk_wiz_0_0
      port map (
@@ -1130,7 +1173,7 @@ rgb2dvi_0: component design_1_rgb2dvi_0_0
       TMDS_Data_n(2 downto 0) => rgb2dvi_0_TMDS_DATA_N(2 downto 0),
       TMDS_Data_p(2 downto 0) => rgb2dvi_0_TMDS_DATA_P(2 downto 0),
       aRst => '0',
-      vid_pData(23 downto 0) => xlconcat_0_dout(23 downto 0),
+      vid_pData(23 downto 0) => ColorDecoder_0_RGB24(23 downto 0),
       vid_pHSync => Top_0_hdmi_hsync,
       vid_pVDE => Top_0_hdmi_enable,
       vid_pVSync => Top_0_hdmi_vsync
@@ -1147,12 +1190,5 @@ rst_ps7_0_50M: component design_1_rst_ps7_0_50M_0
       peripheral_aresetn(0) => rst_ps7_0_50M_peripheral_aresetn(0),
       peripheral_reset(0) => NLW_rst_ps7_0_50M_peripheral_reset_UNCONNECTED(0),
       slowest_sync_clk => processing_system7_0_FCLK_CLK0
-    );
-xlconcat_0: component design_1_xlconcat_0_0
-     port map (
-      In0(7 downto 0) => Top_0_hdmi_red(7 downto 0),
-      In1(7 downto 0) => Top_0_hdmi_green(7 downto 0),
-      In2(7 downto 0) => Top_0_hdmi_blue(7 downto 0),
-      dout(23 downto 0) => xlconcat_0_dout(23 downto 0)
     );
 end STRUCTURE;
