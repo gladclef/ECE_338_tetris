@@ -71,7 +71,8 @@ architecture beh of Top is
    signal hdmi_vsync_sig : std_logic;
    signal pixel_x : unsigned(10 downto 0);
    signal pixel_y : unsigned(9 downto 0);
-   signal pix_addr_sig : std_logic_vector(19 downto 0);
+   signal prev_x_reg, prev_x_next : unsigned(10 downto 0);
+   signal pix_addr_reg, pix_addr_next : unsigned(18 downto 0);
 
    signal LM_ULM_start, LM_ULM_ready: std_logic;
    signal LM_ULM_stopped, LM_ULM_continue: std_logic;
@@ -84,7 +85,7 @@ architecture beh of Top is
    signal DataOut: std_logic_vector(WORD_SIZE_NB-1 downto 0);
 
 -- =======================================================================================================
-   begin
+begin
 
 -- Light up LED if LoadUnLoadMemMod is ready for a command
 --   DEBUG_OUT <= LM_ULM_ready;
@@ -144,6 +145,29 @@ architecture beh of Top is
         pixel_y => pixel_y
     );
 
+   process (clk, reset)
+   begin
+      if (reset = '1') then
+         prev_x_reg <= (others => '0');
+         pix_addr_reg <= (others => '0');
+      elsif (rising_edge(clk)) then
+         prev_x_reg <= prev_x_next;
+         pix_addr_reg <= pix_addr_next;
+      end if;
+   end process;
+
+   process (hdmi_hsync_sig, hdmi_vsync_sig)
+   begin
+      prev_x_next <= pixel_x;
+      pix_addr_next <= pix_addr_reg;
+
+      if (pixel_x = 0) then
+         pix_addr_next <= (others => '0');
+      elsif (pixel_x /= prev_x_reg) then
+         pix_addr_next <= pix_addr_reg + 1;
+      end if;
+   end process;
+
 --    hdmi_red <= std_logic_vector(resize(pixel_x, 8)) when sw_r = '1' else (others => '0');
 --    hdmi_green <= std_logic_vector(resize(pixel_y, 8)) when sw_g = '1' else (others => '0');
     hdmi_red <= "11111111" when sw_r = '1' else (others => '0');
@@ -152,8 +176,7 @@ architecture beh of Top is
     hdmi_hsync <= hdmi_hsync_sig;
     hdmi_vsync <= hdmi_vsync_sig;
     pix_en <= hdmi_hsync_sig or hdmi_vsync_sig;
-    pix_addr_sig <= std_logic_vector( unsigned(pixel_x) + unsigned(pixel_y)*480 );
-    pix_addr <= pix_addr_sig(18 downto 0);
+    pix_addr <= std_logic_vector(pix_addr_next);
 
 end beh;
 
