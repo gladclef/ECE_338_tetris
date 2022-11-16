@@ -18,3 +18,4 @@ vivado/*.log
 vivado/vivado_pid*.str
 vivado/*.ip_user_files/README.txt
 vivado/vitis*.str
+vivado/*.sim
