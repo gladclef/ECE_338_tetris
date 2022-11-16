@@ -40,7 +40,7 @@ if { [string first $scripts_vivado_version $current_vivado_version] == -1 } {
 
 # The design that will be created by this Tcl script contains the following 
 # module references:
-# ColorDecoder, SelectLeft, Top
+# ColorDecoder, SelectLeft, hdmi_sig
 
 # Please add the sources of those modules before sourcing this Tcl script.
 
@@ -171,13 +171,11 @@ proc create_root_design { parentCell } {
 
 
   # Create ports
+  set placeholder [ create_bd_port -dir O -from 0 -to 0 placeholder ]
   set reset [ create_bd_port -dir I -type rst reset ]
   set_property -dict [ list \
    CONFIG.POLARITY {ACTIVE_HIGH} \
  ] $reset
-  set sw_b [ create_bd_port -dir I sw_b ]
-  set sw_g [ create_bd_port -dir I sw_g ]
-  set sw_r [ create_bd_port -dir I sw_r ]
 
   # Create instance: ColorDecoder_0, and set properties
   set block_name ColorDecoder
@@ -201,41 +199,17 @@ proc create_root_design { parentCell } {
      return 1
    }
   
-  # Create instance: Top_0, and set properties
-  set block_name Top
-  set block_cell_name Top_0
-  if { [catch {set Top_0 [create_bd_cell -type module -reference $block_name $block_cell_name] } errmsg] } {
-     catch {common::send_gid_msg -ssname BD::TCL -id 2095 -severity "ERROR" "Unable to add referenced block <$block_name>. Please add the files for ${block_name}'s definition into the project."}
-     return 1
-   } elseif { $Top_0 eq "" } {
-     catch {common::send_gid_msg -ssname BD::TCL -id 2096 -severity "ERROR" "Unable to referenced block <$block_name>. Please add the files for ${block_name}'s definition into the project."}
-     return 1
-   }
-  
   # Create instance: axi_gpio_0, and set properties
   set axi_gpio_0 [ create_bd_cell -type ip -vlnv xilinx.com:ip:axi_gpio:2.0 axi_gpio_0 ]
   set_property -dict [ list \
-   CONFIG.C_ALL_INPUTS {1} \
+   CONFIG.C_ALL_INPUTS {0} \
+   CONFIG.C_ALL_OUTPUTS {1} \
    CONFIG.C_ALL_OUTPUTS_2 {1} \
-   CONFIG.C_GPIO_WIDTH {32} \
-   CONFIG.C_IS_DUAL {1} \
+   CONFIG.C_GPIO_WIDTH {1} \
+   CONFIG.C_IS_DUAL {0} \
    CONFIG.GPIO_BOARD_INTERFACE {Custom} \
    CONFIG.USE_BOARD_FLOW {true} \
  ] $axi_gpio_0
-
-  # Create instance: blk_mem_gen_0, and set properties
-  set blk_mem_gen_0 [ create_bd_cell -type ip -vlnv xilinx.com:ip:blk_mem_gen:8.4 blk_mem_gen_0 ]
-  set_property -dict [ list \
-   CONFIG.Enable_32bit_Address {false} \
-   CONFIG.Enable_A {Always_Enabled} \
-   CONFIG.Read_Width_A {16} \
-   CONFIG.Register_PortA_Output_of_Memory_Primitives {false} \
-   CONFIG.Use_Byte_Write_Enable {false} \
-   CONFIG.Use_RSTA_Pin {false} \
-   CONFIG.Write_Depth_A {16} \
-   CONFIG.Write_Width_A {16} \
-   CONFIG.use_bram_block {Stand_Alone} \
- ] $blk_mem_gen_0
 
   # Create instance: blk_mem_gen_1, and set properties
   set blk_mem_gen_1 [ create_bd_cell -type ip -vlnv xilinx.com:ip:blk_mem_gen:8.4 blk_mem_gen_1 ]
@@ -278,6 +252,17 @@ proc create_root_design { parentCell } {
    CONFIG.USE_RESET {false} \
  ] $clk_wiz_0
 
+  # Create instance: hdmi_sig_0, and set properties
+  set block_name hdmi_sig
+  set block_cell_name hdmi_sig_0
+  if { [catch {set hdmi_sig_0 [create_bd_cell -type module -reference $block_name $block_cell_name] } errmsg] } {
+     catch {common::send_gid_msg -ssname BD::TCL -id 2095 -severity "ERROR" "Unable to add referenced block <$block_name>. Please add the files for ${block_name}'s definition into the project."}
+     return 1
+   } elseif { $hdmi_sig_0 eq "" } {
+     catch {common::send_gid_msg -ssname BD::TCL -id 2096 -severity "ERROR" "Unable to referenced block <$block_name>. Please add the files for ${block_name}'s definition into the project."}
+     return 1
+   }
+  
   # Create instance: processing_system7_0, and set properties
   set processing_system7_0 [ create_bd_cell -type ip -vlnv xilinx.com:ip:processing_system7:5.5 processing_system7_0 ]
   set_property -dict [ list \
@@ -1012,6 +997,13 @@ proc create_root_design { parentCell } {
   # Create instance: rst_ps7_0_50M, and set properties
   set rst_ps7_0_50M [ create_bd_cell -type ip -vlnv xilinx.com:ip:proc_sys_reset:5.0 rst_ps7_0_50M ]
 
+  # Create instance: xlconstant_0, and set properties
+  set xlconstant_0 [ create_bd_cell -type ip -vlnv xilinx.com:ip:xlconstant:1.1 xlconstant_0 ]
+  set_property -dict [ list \
+   CONFIG.CONST_VAL {255} \
+   CONFIG.CONST_WIDTH {8} \
+ ] $xlconstant_0
+
   # Create interface connections
   connect_bd_intf_net -intf_net processing_system7_0_DDR [get_bd_intf_ports DDR] [get_bd_intf_pins processing_system7_0/DDR]
   connect_bd_intf_net -intf_net processing_system7_0_FIXED_IO [get_bd_intf_ports FIXED_IO] [get_bd_intf_pins processing_system7_0/FIXED_IO]
@@ -1022,31 +1014,21 @@ proc create_root_design { parentCell } {
   # Create port connections
   connect_bd_net -net ColorDecoder_0_RGB24 [get_bd_pins ColorDecoder_0/RGB24] [get_bd_pins rgb2dvi_0/vid_pData]
   connect_bd_net -net SelectLeft_0_RGB3 [get_bd_pins SelectLeft_0/RGB3] [get_bd_pins blk_mem_gen_1/dina]
-  connect_bd_net -net Top_0_GPIO_Outs [get_bd_pins Top_0/GPIO_Outs] [get_bd_pins axi_gpio_0/gpio_io_i]
-  connect_bd_net -net Top_0_PNL_BRAM_addr [get_bd_pins Top_0/PNL_BRAM_addr] [get_bd_pins blk_mem_gen_0/addra]
-  connect_bd_net -net Top_0_PNL_BRAM_din [get_bd_pins Top_0/PNL_BRAM_din] [get_bd_pins blk_mem_gen_0/dina]
-  connect_bd_net -net Top_0_PNL_BRAM_we [get_bd_pins Top_0/PNL_BRAM_we] [get_bd_pins blk_mem_gen_0/wea]
-  connect_bd_net -net Top_0_hdmi_blue [get_bd_pins SelectLeft_0/B] [get_bd_pins Top_0/hdmi_blue]
-  connect_bd_net -net Top_0_hdmi_enable [get_bd_pins Top_0/hdmi_enable] [get_bd_pins rgb2dvi_0/vid_pVDE]
-  connect_bd_net -net Top_0_hdmi_green [get_bd_pins SelectLeft_0/G] [get_bd_pins Top_0/hdmi_green]
-  connect_bd_net -net Top_0_hdmi_hsync [get_bd_pins Top_0/hdmi_hsync] [get_bd_pins rgb2dvi_0/vid_pHSync]
-  connect_bd_net -net Top_0_hdmi_red [get_bd_pins SelectLeft_0/R] [get_bd_pins Top_0/hdmi_red]
-  connect_bd_net -net Top_0_hdmi_vsync [get_bd_pins Top_0/hdmi_vsync] [get_bd_pins rgb2dvi_0/vid_pVSync]
-  connect_bd_net -net Top_0_pix_addr [get_bd_pins Top_0/pix_addr] [get_bd_pins blk_mem_gen_1/addra]
-  connect_bd_net -net Top_0_pix_en [get_bd_pins Top_0/pix_en] [get_bd_pins blk_mem_gen_1/wea]
-  connect_bd_net -net axi_gpio_0_gpio2_io_o [get_bd_pins Top_0/GPIO_Ins] [get_bd_pins axi_gpio_0/gpio2_io_o]
-  connect_bd_net -net blk_mem_gen_0_douta [get_bd_pins Top_0/PNL_BRAM_dout] [get_bd_pins blk_mem_gen_0/douta]
+  connect_bd_net -net axi_gpio_0_gpio_io_o [get_bd_ports placeholder] [get_bd_pins axi_gpio_0/gpio_io_o]
   connect_bd_net -net blk_mem_gen_1_douta [get_bd_pins ColorDecoder_0/COLOR3] [get_bd_pins blk_mem_gen_1/douta]
   connect_bd_net -net clk_wiz_0_clk_fast [get_bd_pins clk_wiz_0/clk_fast] [get_bd_pins rgb2dvi_0/SerialClk]
-  connect_bd_net -net clk_wiz_0_clk_slow [get_bd_pins Top_0/Clk] [get_bd_pins blk_mem_gen_0/clka] [get_bd_pins blk_mem_gen_1/clka] [get_bd_pins clk_wiz_0/clk_slow] [get_bd_pins rgb2dvi_0/PixelClk]
-  connect_bd_net -net processing_system7_0_FCLK_CLK0 [get_bd_pins axi_gpio_0/s_axi_aclk] [get_bd_pins clk_wiz_0/clk_in1] [get_bd_pins processing_system7_0/FCLK_CLK0] [get_bd_pins processing_system7_0/M_AXI_GP0_ACLK] [get_bd_pins ps7_0_axi_periph/ACLK] [get_bd_pins ps7_0_axi_periph/M00_ACLK] [get_bd_pins ps7_0_axi_periph/S00_ACLK] [get_bd_pins rst_ps7_0_50M/slowest_sync_clk]
+  connect_bd_net -net clk_wiz_0_clk_slow [get_bd_pins blk_mem_gen_1/clka] [get_bd_pins clk_wiz_0/clk_slow] [get_bd_pins rgb2dvi_0/PixelClk]
+  connect_bd_net -net hdmi_sig_0_hdmi_enable [get_bd_pins hdmi_sig_0/hdmi_enable] [get_bd_pins rgb2dvi_0/vid_pVDE]
+  connect_bd_net -net hdmi_sig_0_hdmi_hsync [get_bd_pins hdmi_sig_0/hdmi_hsync] [get_bd_pins rgb2dvi_0/vid_pHSync]
+  connect_bd_net -net hdmi_sig_0_hdmi_vsync [get_bd_pins hdmi_sig_0/hdmi_vsync] [get_bd_pins rgb2dvi_0/vid_pVSync]
+  connect_bd_net -net hdmi_sig_0_pix_addr [get_bd_pins blk_mem_gen_1/addra] [get_bd_pins hdmi_sig_0/pix_addr]
+  connect_bd_net -net hdmi_sig_0_pix_en [get_bd_pins blk_mem_gen_1/wea] [get_bd_pins hdmi_sig_0/pix_en]
+  connect_bd_net -net processing_system7_0_FCLK_CLK0 [get_bd_pins axi_gpio_0/s_axi_aclk] [get_bd_pins clk_wiz_0/clk_in1] [get_bd_pins hdmi_sig_0/clk] [get_bd_pins processing_system7_0/FCLK_CLK0] [get_bd_pins processing_system7_0/M_AXI_GP0_ACLK] [get_bd_pins ps7_0_axi_periph/ACLK] [get_bd_pins ps7_0_axi_periph/M00_ACLK] [get_bd_pins ps7_0_axi_periph/S00_ACLK] [get_bd_pins rst_ps7_0_50M/slowest_sync_clk]
   connect_bd_net -net processing_system7_0_FCLK_RESET0_N [get_bd_pins processing_system7_0/FCLK_RESET0_N] [get_bd_pins rst_ps7_0_50M/ext_reset_in]
-  connect_bd_net -net reset_1 [get_bd_ports reset] [get_bd_pins Top_0/reset]
+  connect_bd_net -net reset_1 [get_bd_ports reset] [get_bd_pins hdmi_sig_0/reset] [get_bd_pins rgb2dvi_0/aRst]
   connect_bd_net -net rst_ps7_0_50M_interconnect_aresetn [get_bd_pins ps7_0_axi_periph/ARESETN] [get_bd_pins rst_ps7_0_50M/interconnect_aresetn]
   connect_bd_net -net rst_ps7_0_50M_peripheral_aresetn [get_bd_pins axi_gpio_0/s_axi_aresetn] [get_bd_pins ps7_0_axi_periph/M00_ARESETN] [get_bd_pins ps7_0_axi_periph/S00_ARESETN] [get_bd_pins rst_ps7_0_50M/peripheral_aresetn]
-  connect_bd_net -net sw_b_1 [get_bd_ports sw_b] [get_bd_pins Top_0/sw_b]
-  connect_bd_net -net sw_g_1 [get_bd_ports sw_g] [get_bd_pins Top_0/sw_g]
-  connect_bd_net -net sw_r_1 [get_bd_ports sw_r] [get_bd_pins Top_0/sw_r]
+  connect_bd_net -net xlconstant_0_dout [get_bd_pins SelectLeft_0/B] [get_bd_pins SelectLeft_0/G] [get_bd_pins SelectLeft_0/R] [get_bd_pins xlconstant_0/dout]
 
   # Create address segments
   assign_bd_address -offset 0x41200000 -range 0x00010000 -target_address_space [get_bd_addr_spaces processing_system7_0/Data] [get_bd_addr_segs axi_gpio_0/S_AXI/Reg] -force

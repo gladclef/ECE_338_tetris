@@ -3,19 +3,20 @@ z7_hdmi_driver/ip/vivado-library
 *.rar
 
 # vivado files
-vivado/.Xil/
-vivado/*.cache/
-vivado/*.hw/
-vivado/*.runs/
-vivado/*.srcs/sources_1/bd/mref
-vivado/*.srcs/sources_1/bd/**/ip/
-vivado/*.srcs/sources_1/bd/**/ipshared/
-vivado/*.srcs/sources_1/bd/**/sim/
-vivado/*.srcs/sources_1/bd/**/ui/
-vivado/NA/
-vivado/*.jou
-vivado/*.log
-vivado/vivado_pid*.str
-vivado/*.ip_user_files/README.txt
-vivado/vitis*.str
-vivado/*.sim
+vivado
+_vivado/.Xil/
+_vivado/*.cache/
+_vivado/*.hw/
+_vivado/*.runs/
+_vivado/*.srcs/sources_1/bd/mref
+_vivado/*.srcs/sources_1/bd/**/ip/
+_vivado/*.srcs/sources_1/bd/**/ipshared/
+_vivado/*.srcs/sources_1/bd/**/sim/
+_vivado/*.srcs/sources_1/bd/**/ui/
+_vivado/NA/
+_vivado/*.jou
+_vivado/*.log
+_vivado/vivado_pid*.str
+_vivado/*.ip_user_files/README.txt
+_vivado/vitis*.str
+_vivado/*.sim
