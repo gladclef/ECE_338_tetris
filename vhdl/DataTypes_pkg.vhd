@@ -24,8 +24,13 @@ use IEEE.NUMERIC_STD.all;
 
 package DataTypes_pkg is
 
-   CONSTANT MAX_FALL_RATE : integer := 30;
-   CONSTANT MAX_FALL_RATE_NB : integer := 5;
+   CONSTANT SCREEN_WIDTH : integer := 640;
+   CONSTANT SCREEN_HEIGHT : integer := 480;
+   CONSTANT SCREEN_WIDTH_NB : integer := 11;
+   CONSTANT SCREEN_HEIGHT_NB : integer := 10;
+   CONSTANT SCREEN_WIDTH_MAX : integer := 1023; -- 2^SCREEN_WIDTH_NB
+   CONSTANT SCREEN_HEIGHT_MAX : integer := 511; -- 2^SCREEN_HEIGHT_NB
+   CONSTANT SCREEN_ADDR_NB : integer := 19; -- 640x480=307200, log(307200)=19
 
    CONSTANT COLOR_BLACK : std_logic_vector(23 downto 0) := (others => '0');
    CONSTANT COLOR_WHITE : std_logic_vector(23 downto 0) := (others => '1');
@@ -37,6 +42,17 @@ package DataTypes_pkg is
    CONSTANT TEXT_BLOCK_ADDR : integer := TEXT_BLOCK_WIDTH*TEXT_BLOCK_HEIGHT;
    CONSTANT MATH_BLOCK_MAX_WIDTH : integer  := TEXT_BLOCK_WIDTH+5; -- +6, -1 for the extra space after each character
    CONSTANT MATH_BLOCK_HEIGHT : integer := TEXT_BLOCK_HEIGHT+6;
+   CONSTANT MAX_FALL_RATE : integer := 30;
+   CONSTANT MAX_FALL_RATE_NB : integer := 5;
+
+   CONSTANT ROCKET_WIDTH : integer := 32;
+   CONSTANT ROCKET_HEIGHT : integer := 32;
+   CONSTANT ROCKET_X : integer := SCREEN_WIDTH/2 - ROCKET_WIDTH/2;
+   CONSTANT ROCKET_Y : integer := SCREEN_HEIGHT - ROCKET_HEIGHT;
+   CONSTANT ROCKET_MAX_MOVE_RATE : integer := 31;
+   CONSTANT ROCKET_MAX_MOVE_RATE_NB : integer := 5;
+   CONSTANT ROCKET_ADDR_MAX : integer := 1023; -- ROCKET_WIDTH*ROCKET_HEIGHT-1
+   CONSTANT ROCKET_ADDR_NB : integer := 10; -- log(ROCKET_ADDR_MAX)
     
    CONSTANT ASCII_NB : integer := 6;
    CONSTANT ASCII_NUL : std_logic_vector(ASCII_NB-1 downto 0) := (others => '0');
@@ -81,9 +97,5 @@ package DataTypes_pkg is
    CONSTANT ASCII_8 :   std_logic_vector(ASCII_NB-1 downto 0) := std_logic_vector(to_unsigned(56,ASCII_NB)); -- 38
    CONSTANT ASCII_9 :   std_logic_vector(ASCII_NB-1 downto 0) := std_logic_vector(to_unsigned(57,ASCII_NB)); -- 39
    CONSTANT ASCII_EQU : std_logic_vector(ASCII_NB-1 downto 0) := std_logic_vector(to_unsigned(61,ASCII_NB)); -- 3D
-
-   -- 4  +  5  =  9
-   -- 52 43 53 61 57
-   --x34 2B 35 3D 39
 
 end DataTypes_pkg;

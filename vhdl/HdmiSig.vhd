@@ -35,9 +35,10 @@ entity hdmi_sig is
       hdmi_vsync : out STD_LOGIC;
       hdmi_enable : out STD_LOGIC;
       pix_en : out STD_LOGIC;
-      pix_x : out STD_LOGIC_VECTOR(10 downto 0);
-      pix_y : out STD_LOGIC_VECTOR(9 downto 0);
-      pix_addr : out STD_LOGIC_VECTOR ( 18 downto 0 ) -- 640x480=307200, log(307200)=19
+      pix_x : out STD_LOGIC_VECTOR(SCREEN_WIDTH_NB-1 downto 0);
+      pix_y : out STD_LOGIC_VECTOR(SCREEN_HEIGHT_NB-1 downto 0);
+      pix_addr : out STD_LOGIC_VECTOR (SCREEN_ADDR_NB-1 downto 0);
+      frame_update : out STD_LOGIC -- true for one clock cycle per frame, after the end of the frame
    );
 end hdmi_sig;
 
@@ -45,10 +46,10 @@ architecture beh of hdmi_sig is
 
    signal hdmi_hsync_sig : std_logic;
    signal hdmi_vsync_sig : std_logic;
-   signal pixel_x : unsigned(10 downto 0);
-   signal pixel_y : unsigned(9 downto 0);
-   signal prev_x_reg, prev_x_next : unsigned(10 downto 0);
-   signal pix_addr_reg, pix_addr_next : unsigned(18 downto 0);
+   signal pixel_x : unsigned(SCREEN_WIDTH_NB-1 downto 0);
+   signal pixel_y : unsigned(SCREEN_HEIGHT_NB-1 downto 0);
+   signal prev_x_reg, prev_x_next : unsigned(SCREEN_WIDTH_NB-1 downto 0);
+   signal pix_addr_reg, pix_addr_next : unsigned(SCREEN_ADDR_NB-1 downto 0);
 
 -- =======================================================================================================
 begin
@@ -94,6 +95,7 @@ begin
    pix_x    <= std_logic_vector(pixel_x);
    pix_y    <= std_logic_vector(pixel_y);
    pix_addr <= std_logic_vector(pix_addr_next);
+   frame_update <= '1' when (pixel_x = SCREEN_WIDTH-1 and pixel_y = SCREEN_HEIGHT-1) else '0';
 
 end beh;
 
