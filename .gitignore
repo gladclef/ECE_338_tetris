@@ -1,6 +1,10 @@
 # project files
 z7_hdmi_driver/ip/vivado-library
 *.rar
+media/*.csv
+media/*.pixil
+media/*.vhd
+media/*_bitmask.png
 
 # vivado files
 vivado

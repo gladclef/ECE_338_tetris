@@ -18,7 +18,7 @@
 --
 -----------------------------------------------------------
 -- FSM created with https://github.com/gladclef/FSMs
--- {'fsm_name': 'MathBlock', 'table_vals': [['', 'reset', 'start', '__', '___', 'text_ready', 'v_back_porch', 'v_front_port', 'stop', 'off_screen'], ['IDLE', '', 'ASCII_START', '', '', '', '', '', '', ''], ['ASCII_START', '', '', '', 'ASCII_WAIT', '', '', '', '', ''], ['ASCII_WAIT', '', '', '', '', 'RENDER', '', '', '', ''], ['RENDER', '', '', '', '', '', 'INTER_FRAME', '', 'IDLE', 'IDLE'], ['INTER_FRAME', '', '', '', '', '', '', 'RENDER', 'IDLE', 'IDLE']]}
+-- {"fsm_name":"MathBlock","table_vals":[["","reset","start","___","text_ready","frame_update","____","stop","off_screen"],["IDLE","","ASCII_START","","","","","",""],["ASCII_START","","","ASCII_WAIT","","","","",""],["ASCII_WAIT","","","","RENDER","","","",""],["RENDER","","","","","INTER_FRAME","","IDLE","IDLE"],["INTER_FRAME","","","","","","RENDER","IDLE","IDLE"]]}
 -----------------------------------------------------------
 
 library IEEE;
@@ -30,24 +30,23 @@ use work.DataTypes_pkg.all;
 
 entity MathBlock is
    Port (
-      reset:       in std_logic;
-      clk:         in std_logic;
-      ready:       out std_logic;
-      start:       in std_logic;
-      x:           in std_logic_vector(10 downto 0);
-      ascii:       in std_logic_vector(MATH_BLOCK_MAX_CHARS*ASCII_NB-1 downto 0);
-      y_increment: in std_logic_vector(MAX_FALL_RATE_NB-1 downto 0);
-      stop:        in std_logic;
-      pix_x:       in std_logic_vector(10 downto 0);
-      pix_y:       in std_logic_vector(9 downto 0);
-      pix_en:      out std_logic;
-      color:       out std_logic_vector(23 downto 0)
+      reset:        in std_logic;
+      clk:          in std_logic;
+      ready:        out std_logic;
+      start:        in std_logic;
+      x:            in std_logic_vector(10 downto 0);
+      ascii:        in std_logic_vector(MATH_BLOCK_MAX_CHARS*ASCII_NB-1 downto 0);
+      y_increment:  in std_logic_vector(MAX_FALL_RATE_NB-1 downto 0);
+      stop:         in std_logic;
+      pix_x:        in std_logic_vector(10 downto 0);
+      pix_y:        in std_logic_vector(9 downto 0);
+      frame_update: in std_logic;
+      pix_en:       out std_logic;
+      color:        out std_logic_vector(23 downto 0)
    );
 end MathBlock;
 
 architecture rtl of MathBlock is
-   CONSTANT V_BACK_PORCH_VEC:  std_logic_vector(9 downto 0) := std_logic_vector(to_unsigned(480,10));
-   CONSTANT V_FRONT_PORCH_VEC: std_logic_vector(9 downto 0) := std_logic_vector(to_unsigned(481,10));
    type state_type is (IDLE, ASCII_START, ASCII_WAIT, RENDER, INTER_FRAME);
 
    signal state_reg, state_next: state_type;
@@ -59,7 +58,6 @@ architecture rtl of MathBlock is
    signal text_ready: std_logic;
    signal text_count: std_logic_vector(MATH_BLOCK_MAX_CHARS_NB-1 downto 0);
    signal text_pixels: std_logic_vector(0 to TEXT_BLOCK_ADDR-1);
-   signal v_back_porch, v_front_porch: std_logic;
    signal off_screen: std_logic;
 
 begin
@@ -82,16 +80,14 @@ begin
       end if;
    end process;
 
-   v_back_porch <= '1' when (pix_y = V_BACK_PORCH_VEC) else '0';
-   v_front_porch <= '1' when (pix_y = V_FRONT_PORCH_VEC) else '0';
    off_screen <= '1' when (block_y_reg > 479) else '0';
    ready <= '1' when state_reg = IDLE else '0';
    color <= COLOR_WHITE;
 
    -- combinational circuit
-   process(state_reg, reset, start, ascii, text_count, text_ready, pix_x, pix_y, block_x_reg, block_y_reg, text_width_reg, text_pixels, y_increment, v_back_porch, v_front_porch, stop, off_screen)
-      variable pix_x_int: integer range 0 to 1023;
-      variable pix_y_int: integer range 0 to 511;
+   process(state_reg, reset, start, ascii, text_count, text_ready, pix_x, pix_y, block_x_reg, block_y_reg, text_width_reg, text_pixels, y_increment, frame_update, stop, off_screen)
+      variable pix_x_int: integer range 0 to SCREEN_WIDTH_MAX;
+      variable pix_y_int: integer range 0 to SCREEN_HEIGHT_MAX;
    begin
       state_next <= state_reg;
       block_x_next <= block_x_reg;
@@ -151,7 +147,7 @@ begin
                end if;
             end loop;
 
-            if (v_back_porch = '1') then
+            if (frame_update = '1') then
                state_next <= INTER_FRAME;
             elsif (stop = '1') then
                state_next <= IDLE;
@@ -162,10 +158,9 @@ begin
          when INTER_FRAME =>
             -- single clock cycle frame intermission to increment the block_y_reg
             block_y_next <= block_y_reg + to_integer(unsigned(y_increment));
+            state_next <= RENDER;
 
-            if (v_front_porch = '1') then
-               state_next <= RENDER;
-            elsif (stop = '1') then
+            if (stop = '1') then
                state_next <= IDLE;
             elsif (off_screen = '1') then
                state_next <= IDLE;
