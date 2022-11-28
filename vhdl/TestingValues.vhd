@@ -1,6 +1,6 @@
 -----------------------------------------------------------
 -- Company: University of New Mexico
--- Engineer: Rachel Cazolla, Benjamin Bean
+-- Engineer: Rachel Cazzola, Benjamin Bean
 -- 
 -- Create Date:
 -- Design Name: 
@@ -41,7 +41,7 @@ architecture rtl of TestingValues is
 begin
 
    start <= '1';
-   math_block_start_x <= (others => '0');
+   math_block_start_x <= "00001110010";
    -- 4  +  5  =  9
    -- 52 43 53 61 57
    --x34 2B 35 3D 39

@@ -1,6 +1,6 @@
 -----------------------------------------------------------
 -- Company: University of New Mexico
--- Engineer: Rachel Cazolla, Benjamin Bean
+-- Engineer: Rachel Cazzola, Benjamin Bean
 -- 
 -- Create Date:
 -- Design Name: 
@@ -85,7 +85,7 @@ begin
    color <= COLOR_WHITE;
 
    -- combinational circuit
-   process(state_reg, reset, start, ascii, text_count, text_ready, pix_x, pix_y, block_x_reg, block_y_reg, text_width_reg, text_pixels, y_increment, frame_update, stop, off_screen)
+   process(state_reg, reset, start, x, ascii, ascii_reg, text_count, text_ready, pix_x, pix_y, block_x_reg, block_y_reg, text_width_reg, text_pixels, y_increment, frame_update, stop, off_screen)
       variable pix_x_int: integer range 0 to SCREEN_WIDTH_MAX;
       variable pix_y_int: integer range 0 to SCREEN_HEIGHT_MAX;
    begin
@@ -100,6 +100,7 @@ begin
       case state_reg is
          when IDLE =>
             if (start = '1') then
+               block_x_next  <= to_integer(unsigned(x));
                ascii_next <= ascii;
                state_next <= ASCII_START;
             end if;

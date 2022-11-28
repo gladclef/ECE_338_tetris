@@ -1,6 +1,6 @@
 -----------------------------------------------------------
 -- Company: University of New Mexico
--- Engineer: Rachel Cazolla, Benjamin Bean
+-- Engineer: Rachel Cazzola, Benjamin Bean
 -- 
 -- Create Date:
 -- Design Name: 
@@ -40,7 +40,7 @@ entity RenderText is
 end RenderText;
 
 architecture rtl of RenderText is
-   CONSTANT CHAR_0 : std_logic_vector(0 to 14) := "111101101101111";
+   CONSTANT CHAR_0 : std_logic_vector(0 to 14) := "111101101101111"; 
    CONSTANT CHAR_1 : std_logic_vector(0 to 14) := "010010010010010";
    CONSTANT CHAR_2 : std_logic_vector(0 to 14) := "111001111100111";
    CONSTANT CHAR_3 : std_logic_vector(0 to 14) := "111001111001111";
@@ -56,7 +56,7 @@ architecture rtl of RenderText is
    CONSTANT CHAR_DIV : std_logic_vector(0 to 14) := "001001010100100";
    CONSTANT CHAR_EQU : std_logic_vector(0 to 14) := "000011000011000";
 
-   CONSTANT ROW0 : integer := TEXT_BLOCK_WIDTH*0;
+   CONSTANT ROW0 : integer := TEXT_BLOCK_WIDTH*0; 
    CONSTANT ROW1 : integer := TEXT_BLOCK_WIDTH*1;
    CONSTANT ROW2 : integer := TEXT_BLOCK_WIDTH*2;
    CONSTANT ROW3 : integer := TEXT_BLOCK_WIDTH*3;

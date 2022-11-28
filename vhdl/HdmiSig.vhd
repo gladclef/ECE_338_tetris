@@ -77,7 +77,7 @@ begin
       end if;
    end process;
 
-   process (hdmi_hsync_sig, hdmi_vsync_sig)
+   process (hdmi_hsync_sig, hdmi_vsync_sig, pixel_x, pix_addr_reg, prev_x_reg)
    begin
       prev_x_next <= pixel_x;
       pix_addr_next <= pix_addr_reg;
