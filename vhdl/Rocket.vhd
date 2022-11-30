@@ -30,17 +30,18 @@ use work.DataTypes_pkg.all;
 
 entity Rocket is
    Port (
-      reset:        in std_logic;
-      clk:          in std_logic;
-      start:        in std_logic;
-      x_increment:  in std_logic_vector(ROCKET_MAX_MOVE_RATE_NB downto 0); -- signed, include an extra bit for negatives
-      pix_x:        in std_logic_vector(SCREEN_WIDTH_NB-1 downto 0);
-      pix_y:        in std_logic_vector(SCREEN_HEIGHT_NB-1 downto 0);
-      frame_update: in std_logic;
-      stop:         in std_logic;
-      x_mid:        out std_logic_vector(SCREEN_WIDTH_NB-1 downto 0);
-      pix_en:       out std_logic;
-      color:        out std_logic_vector(23 downto 0)
+      reset:         in std_logic;
+      clk:           in std_logic;
+      start:         in std_logic;
+      x_increment:   in std_logic_vector(ROCKET_MAX_MOVE_RATE_NB downto 0); -- signed, include an extra bit for negatives
+      pix_x:         in std_logic_vector(SCREEN_WIDTH_NB-1 downto 0);
+      pix_y:         in std_logic_vector(SCREEN_HEIGHT_NB-1 downto 0);
+      pix_en:        in std_logic;
+      frame_update:  in std_logic;
+      stop:          in std_logic;
+      x_mid:         out std_logic_vector(SCREEN_WIDTH_NB-1 downto 0);
+      pix_rocket_en: out std_logic;
+      color:         out std_logic_vector(23 downto 0)
    );
 end Rocket;
 
@@ -57,7 +58,7 @@ begin
    begin
       if (reset = '1') then
          state_reg <= IDLE;
-         x_reg <= ROCKET_X;
+         x_reg <= 0;--ROCKET_X;
          draw_addr_reg <= 0;
       elsif (rising_edge(clk)) then
          state_reg <= state_next;
@@ -75,8 +76,8 @@ begin
    begin
       state_next <= state_reg;
       x_next <= x_reg;
-      pix_en <= '0';
       draw_addr_next <= draw_addr_reg;
+      pix_rocket_en <= '0';
 
       case state_reg is
          when IDLE =>
@@ -122,9 +123,14 @@ begin
                      "00000111000011111110000111000000" &
                      "00000100000000010000000001000000";
 
-            if (pix_y_int >= ROCKET_Y and pix_y_int < SCREEN_HEIGHT) then
-               if (pix_x_int >= x_reg and pix_x_int < x_reg+ROCKET_WIDTH) then
-                  pix_en <= rbits(render_addr_reg);
+            -- if the line is currently being drawn
+            if (pix_en = '1') then
+               -- if the y location currently being drawn overlaps the rocket
+               if (pix_y_int >= ROCKET_Y and pix_y_int < SCREEN_HEIGHT) then
+                  -- if the x location currently being drawn overlaps the rocket
+                  if (pix_x_int >= x_reg and pix_x_int < x_reg+ROCKET_WIDTH) then
+                     -- draw the rocket!
+                     pix_rocket_en <= rbits(draw_addr_reg);
                      if (draw_addr_reg /= ROCKET_ADDR_MAX) then
                         draw_addr_next <= draw_addr_reg + 1;
                      end if;
