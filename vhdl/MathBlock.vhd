@@ -41,7 +41,7 @@ entity MathBlock is
       pix_x:        in std_logic_vector(10 downto 0);
       pix_y:        in std_logic_vector(9 downto 0);
       frame_update: in std_logic;
-      pix_en:       out std_logic;
+      pix_mb_en:    out std_logic;
       color:        out std_logic_vector(23 downto 0)
    );
 end MathBlock;
@@ -95,7 +95,7 @@ begin
       ascii_next <= ascii_reg;
       text_width_next <= text_width_reg;
       text_start <= '0';
-      pix_en <= '0';
+      pix_mb_en <= '0';
 
       case state_reg is
          when IDLE =>
@@ -121,29 +121,29 @@ begin
             pix_x_int := to_integer(unsigned(pix_x));
             pix_y_int := to_integer(unsigned(pix_y));
 
-            -- render out the border as it comes up
+            -- draw out the border as it comes up
             if (pix_y_int >= block_y_reg and pix_y_int <= block_y_reg+MATH_BLOCK_HEIGHT-1) then
                if (pix_x_int = block_x_reg) then                         -- left border
-                  pix_en <= '1';
+                  pix_mb_en <= '1';
                end if;
                if (pix_x_int = block_x_reg+text_width_reg+5-1) then      -- right border
-                  pix_en <= '1';
+                  pix_mb_en <= '1';
                end if;
                if (pix_x_int > block_x_reg and pix_x_int < block_x_reg+text_width_reg+5) then
                    if (pix_y_int = block_y_reg) then                     -- top border
-                      pix_en <= '1';
+                      pix_mb_en <= '1';
                    end if;
                    if (pix_y_int = block_y_reg+MATH_BLOCK_HEIGHT-1) then -- bottom border
-                      pix_en <= '1';
+                      pix_mb_en <= '1';
                    end if;
                end if;
             end if;
 
-            -- render out the text bits as they come up
+            -- draw out the text bits as they come up
             for i in 0 to TEXT_BLOCK_HEIGHT-1 loop
                if (pix_y_int = block_y_reg+3+i) then -- in the text row
                   if (pix_x_int > block_x_reg+2 and pix_x_int < block_x_reg+text_width_reg+4) then -- in the text block
-                     pix_en <= text_pixels(TEXT_BLOCK_WIDTH*i + pix_x_int-block_x_reg-3);
+                     pix_mb_en <= text_pixels(TEXT_BLOCK_WIDTH*i + pix_x_int-block_x_reg-3);
                   end if;
                end if;
             end loop;

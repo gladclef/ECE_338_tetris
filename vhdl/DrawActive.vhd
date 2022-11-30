@@ -4,7 +4,7 @@
 -- 
 -- Create Date:
 -- Design Name: 
--- Module Name:    RenderActive - Behavioral 
+-- Module Name:    DrawActive - Behavioral 
 -- Project Name: 
 -- Target Devices: 
 -- Tool versions: 
@@ -18,7 +18,7 @@
 --
 ----------------------------------------------------------------------------------
 
--- RenderActive chooses which pixel to draw to the scene, based on the priority ordering:
+-- DrawActive chooses which pixel to draw to the scene, based on the priority ordering:
 -- * special effects
 -- * player's ship
 -- * bullets
@@ -32,7 +32,7 @@ use IEEE.NUMERIC_STD.all;
 library work;
 use work.DataTypes_pkg.all;
 
-entity RenderActive is
+entity DrawActive is
    port(
       pix_en: in std_logic;
       background_color: in std_logic_vector(23 downto 0);
@@ -48,9 +48,9 @@ entity RenderActive is
       math_block_color: in std_logic_vector(23 downto 0);
       color_out: out std_logic_vector(23 downto 0)
    );
-end RenderActive;
+end DrawActive;
 
-architecture beh of RenderActive is
+architecture beh of DrawActive is
 begin
 
    color_out <= COLOR_BLACK when pix_en = '0' else
