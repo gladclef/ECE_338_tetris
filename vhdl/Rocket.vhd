@@ -8,7 +8,7 @@
 -- Project Name: 
 -- Target Devices: 
 -- Tool versions: 
--- Description:    Tracks the player rocket and renders its pixels.
+-- Description:    Tracks the player rocket and draws its pixels.
 --
 -- Dependencies: 
 --
@@ -49,7 +49,7 @@ architecture rtl of Rocket is
 
    signal state_reg, state_next: state_type;
    signal x_reg, x_next: integer range -SCREEN_WIDTH_MAX to SCREEN_WIDTH_MAX;
-   signal render_addr_reg, render_addr_next: integer range 0 to ROCKET_ADDR_MAX;
+   signal draw_addr_reg, draw_addr_next: integer range 0 to ROCKET_ADDR_MAX;
 begin
 
    -- state and data register
@@ -58,16 +58,16 @@ begin
       if (reset = '1') then
          state_reg <= IDLE;
          x_reg <= ROCKET_X;
-         render_addr_reg <= 0;
+         draw_addr_reg <= 0;
       elsif (rising_edge(clk)) then
          state_reg <= state_next;
          x_reg <= x_next;
-         render_addr_reg <= render_addr_next;
+         draw_addr_reg <= draw_addr_next;
       end if;
    end process;
 
    -- combinational circuit
-   process(state_reg, reset, start, stop, x_increment, pix_x, pix_y, x_reg, frame_update, render_addr_reg)
+   process(state_reg, reset, start, stop, x_increment, pix_x, pix_y, x_reg, frame_update, draw_addr_reg)
       variable rbits: std_logic_vector(0 to ROCKET_ADDR_MAX);
       variable pix_x_int: integer range -SCREEN_WIDTH_MAX to SCREEN_WIDTH_MAX;
       variable pix_y_int: integer range 0 to SCREEN_HEIGHT_MAX;
@@ -75,8 +75,8 @@ begin
    begin
       state_next <= state_reg;
       x_next <= x_reg;
-      render_addr_next <= render_addr_reg;
       pix_en <= '0';
+      draw_addr_next <= draw_addr_reg;
 
       case state_reg is
          when IDLE =>
@@ -125,8 +125,9 @@ begin
             if (pix_y_int >= ROCKET_Y and pix_y_int < SCREEN_HEIGHT) then
                if (pix_x_int >= x_reg and pix_x_int < x_reg+ROCKET_WIDTH) then
                   pix_en <= rbits(render_addr_reg);
-                  if (render_addr_reg /= ROCKET_ADDR_MAX) then
-                     render_addr_next <= render_addr_reg + 1;
+                     if (draw_addr_reg /= ROCKET_ADDR_MAX) then
+                        draw_addr_next <= draw_addr_reg + 1;
+                     end if;
                   end if;
                end if;
             end if;
@@ -150,7 +151,7 @@ begin
                x_next <= x_reg + x_increment_var;
             end if;
 
-            render_addr_next <= 0;
+            draw_addr_next <= 0;
             state_next <= RENDER;
 
       end case;

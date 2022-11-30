@@ -120,7 +120,7 @@ begin
             pix_x_int := to_integer(unsigned(pix_x));
             pix_y_int := to_integer(unsigned(pix_y));
 
-            -- render out the border as it comes up
+            -- draw out the border as it comes up
             if (pix_y_int >= block_y_reg and pix_y_int <= block_y_reg+MATH_BLOCK_HEIGHT-1) then
                if (pix_x_int = block_x_reg) then                         -- left border
                   pix_en <= '1';
@@ -138,7 +138,7 @@ begin
                end if;
             end if;
 
-            -- render out the text bits as they come up
+            -- draw out the text bits as they come up
             for i in 0 to TEXT_BLOCK_HEIGHT-1 loop
                if (pix_y_int = block_y_reg+3+i) then -- in the text row
                   if (pix_x_int > block_x_reg+2 and pix_x_int < block_x_reg+text_width_reg+4) then -- in the text block
