@@ -131,7 +131,7 @@ begin
    end process;
 
    -- combinational circuit
-   process(state_reg, reset, start, ascii, idx_reg, count_reg, render_x_reg)
+   process(state_reg, reset, start, pixels_reg, ascii, idx_reg, count_reg, render_x_reg)
       variable char_bits : std_logic_vector(0 to 14);
       variable ascii_val : std_logic_vector(ASCII_NB-1 downto 0);
    begin
@@ -141,6 +141,7 @@ begin
       render_x_next <= render_x_reg;
       pixels_next <= pixels_reg;
       ready <= '0';
+      char_bits := (others => '0');
 
       case state_reg is
          when IDLE =>

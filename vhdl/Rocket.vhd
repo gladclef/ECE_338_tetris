@@ -81,7 +81,7 @@ begin
    end process;
 
    -- combinational circuit
-   process(state_reg, reset, start, stop, x_increment, pix_x, pix_y, x_reg, frame_update, draw_addr_reg)
+   process(state_reg, reset, start, stop, x_increment, pix_en, pix_x, pix_y, x_reg, frame_update, draw_addr_reg)
       variable rbits: std_logic_vector(0 to ROCKET_ADDR_MAX);
       variable pix_x_int: integer range -SCREEN_WIDTH_MAX to SCREEN_WIDTH_MAX;
       variable pix_y_int: integer range 0 to SCREEN_HEIGHT_MAX;
