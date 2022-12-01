@@ -16,7 +16,12 @@
 -- Revision 0.01 - File Created
 -- Additional Comments: 
 --
------------------------------------------------------------
+--=========================================================
+--
+-- Manages the control logic based on user input. This includes the
+-- left and right rocket speed, and the bullet firing.
+--
+--=========================================================
 
 library IEEE;
 use IEEE.STD_LOGIC_1164.ALL;

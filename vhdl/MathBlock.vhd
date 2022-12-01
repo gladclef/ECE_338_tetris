@@ -8,9 +8,9 @@
 -- Project Name: 
 -- Target Devices: 
 -- Tool versions: 
--- Description:    Tracks a math block and renders its pixels.
+-- Description:    Tracks a math block and draws its pixels.
 --
--- Dependencies: 
+-- Dependencies:   RenderText.vhd
 --
 -- Revision: 
 -- Revision 0.01 - File Created
@@ -19,7 +19,24 @@
 -----------------------------------------------------------
 -- FSM created with https://github.com/gladclef/FSMs
 -- {"fsm_name":"MathBlock","table_vals":[["","reset","start","___","text_ready","frame_update","____","stop","off_screen"],["IDLE","","ASCII_START","","","","","",""],["ASCII_START","","","ASCII_WAIT","","","","",""],["ASCII_WAIT","","","","RENDER","","","",""],["RENDER","","","","","INTER_FRAME","","IDLE","IDLE"],["INTER_FRAME","","","","","","RENDER","IDLE","IDLE"]]}
------------------------------------------------------------
+--=========================================================
+--
+-- Tracks a math block and draws its pixels. This draws the border and text
+-- pixels in sync with the pix_x and pix_y inputs by indexing into the text_pixels
+-- register.
+--
+-- When start gets asserted, this latches the x and ascii values, and starts the
+-- RenderText module. Once that module is done translating the ascii string into
+-- a pixel mask, this starts drawing the block.
+-- 
+-- This module holds the state of a MathBlock, including its x/y position, ascii
+-- string, validity, and text pixel map.
+-- 
+-- On every frame_update, it increments its y position and checks for collisions
+-- with the on screen bullet or rocket. If there is a collision, it reports it
+-- to the outputs and disables the block.
+--
+--=========================================================
 
 library IEEE;
 use IEEE.STD_LOGIC_1164.ALL;
@@ -139,11 +156,12 @@ begin
                end if;
             end if;
 
-            -- draw out the text bits as they come up
-            for i in 0 to TEXT_BLOCK_HEIGHT-1 loop
-               if (pix_y_int = block_y_reg+3+i) then -- in the text row
+            -- draw out the text pixels
+            -- checks if the pixel mask is '1' for the current pix_x and pix_y
+            for row in 0 to TEXT_BLOCK_HEIGHT-1 loop
+               if (pix_y_int = block_y_reg+3+row) then -- in the text row
                   if (pix_x_int > block_x_reg+2 and pix_x_int < block_x_reg+text_width_reg+4) then -- in the text block
-                     pix_mb_en <= text_pixels(TEXT_BLOCK_WIDTH*i + pix_x_int-block_x_reg-3);
+                     pix_mb_en <= text_pixels(TEXT_BLOCK_WIDTH*row + pix_x_int-block_x_reg-3);
                   end if;
                end if;
             end loop;

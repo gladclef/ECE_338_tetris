@@ -1,4 +1,4 @@
-----------------------------------------------------------------------------------
+----------------------------------------------------------
 -- Company: University of New Mexico
 -- Engineer: Racel Cazzola, Benjamin Bean
 -- 
@@ -8,7 +8,7 @@
 -- Project Name: 
 -- Target Devices: 
 -- Tool versions: 
--- Description: 
+-- Description:    Translates from 3 bit to 24 bit color space.
 --
 -- Dependencies: 
 --
@@ -16,9 +16,11 @@
 -- Revision 0.01 - File Created
 -- Additional Comments: 
 --
-----------------------------------------------------------------------------------
-
--- ColorDecoder translates from 3 bit to 24 bit color space
+--=========================================================
+--
+-- ColorDecoder translates from 3 bit to 24 bit color space.
+--
+--=========================================================
 
 library IEEE;
 use IEEE.STD_LOGIC_1164.ALL;

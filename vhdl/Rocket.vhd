@@ -19,7 +19,20 @@
 -----------------------------------------------------------
 -- FSM created with https://github.com/gladclef/FSMs
 -- {'fsm_name': 'Rocket', 'table_vals': [['', 'reset', 'start', 'stop', 'frame_update', '__'], ['IDLE', '', 'RENDER', '', '', ''], ['RENDER', '', '', 'IDLE', 'INTER_FRAME', ''], ['INTER_FRAME', '', '', '', '', 'RENDER']]}
------------------------------------------------------------
+--=========================================================
+--
+-- Tracks the rocket and draws its pixels. This does the draw by tracking the
+-- draw address for the pixel mask ROM, and drawing the pixels from the ROM
+-- while pix_x and pix_y are within the rocket's current x/y borders.
+-- The draw address gets incremented every time a pixel is drawn.
+-- 
+-- This module holds the state of the rocket, which is just the x position.
+-- 
+-- On every frame_update, it increments its y position and checks for collisions
+-- with the on screen bullet or rocket. If there is a collision, it reports it
+-- to the outputs and disables the block.
+--
+--=========================================================
 
 library IEEE;
 use IEEE.STD_LOGIC_1164.ALL;
