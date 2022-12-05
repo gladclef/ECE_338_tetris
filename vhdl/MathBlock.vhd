@@ -26,8 +26,8 @@
 -- register.
 --
 -- When start gets asserted, this latches the x and ascii values, and starts the
--- RenderText module. Once that module is done translating the ascii string into
--- a pixel mask, this starts drawing the block.
+-- RenderText module. Once that module is done rendering the ascii string onto
+-- the pixel mask, this starts drawing the block.
 -- 
 -- This module holds the state of a MathBlock, including its x/y position, ascii
 -- string, validity, and text pixel map.
@@ -78,18 +78,25 @@ architecture rtl of MathBlock is
    type state_type is (IDLE, ASCII_START, ASCII_WAIT, DRAW, INTER_FRAME);
    signal state_reg, state_next: state_type;
 
-   -- the current xy and y location of the block
+   -- the current x and y locations of the block
    signal block_x_reg, block_x_next: integer range 0 to 1023;
    signal block_y_reg, block_y_next: integer range 0 to 511;
+   signal off_screen: std_logic;
 
-   -- latches the value to be drawn
+   -- latches the characters to be drawn when start gets asserted
    signal ascii_reg, ascii_next: std_logic_vector(MATH_BLOCK_MAX_CHARS*ASCII_NB-1 downto 0);
-   signal text_width_reg, text_width_next: integer range 0 to 1023;
+
+   -- signals to and from the RenderText module
+   --   render_start:    starts the RenderText module
+   --   text_ready:      when the RenderText module is done rendering
+   --   text_pixel_mask: the pixels rendered to by RenderText, to be drawn to the screen
+   --   text_width:      the number of bits that are occupied on the screen by the rendered text
+   --   text_count:      a count of how many characters are in the ascii_reg
    signal render_start: std_logic;
    signal text_ready: std_logic;
-   signal text_count: std_logic_vector(MATH_BLOCK_MAX_CHARS_NB-1 downto 0);
    signal text_pixel_mask: std_logic_vector(0 to TEXT_BLOCK_ADDR-1);
-   signal off_screen: std_logic;
+   signal text_width_reg, text_width_next: integer range 0 to 1023;
+   signal text_count: std_logic_vector(MATH_BLOCK_MAX_CHARS_NB-1 downto 0);
 
 begin
 
