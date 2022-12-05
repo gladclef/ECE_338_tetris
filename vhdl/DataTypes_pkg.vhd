@@ -96,6 +96,7 @@ package DataTypes_pkg is
    CONSTANT ASCII_7 :   std_logic_vector(ASCII_NB-1 downto 0) := std_logic_vector(to_unsigned(55,ASCII_NB)); -- 37
    CONSTANT ASCII_8 :   std_logic_vector(ASCII_NB-1 downto 0) := std_logic_vector(to_unsigned(56,ASCII_NB)); -- 38
    CONSTANT ASCII_9 :   std_logic_vector(ASCII_NB-1 downto 0) := std_logic_vector(to_unsigned(57,ASCII_NB)); -- 39
+   CONSTANT ASCII_CLN : std_logic_vector(ASCII_NB-1 downto 0) := std_logic_vector(to_unsigned(58,ASCII_NB)); -- 3A
    CONSTANT ASCII_EQU : std_logic_vector(ASCII_NB-1 downto 0) := std_logic_vector(to_unsigned(61,ASCII_NB)); -- 3D
 
 end DataTypes_pkg;
