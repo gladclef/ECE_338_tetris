@@ -25,8 +25,8 @@ architecture rtl of ScoreAndLives is
    signal state_reg, state_next: state_type;
 
    -- the current x and y locations of the block
-   signal block_x_reg, block_x_next: integer range 0 to 1023;
-   signal block_y_reg, block_y_next: integer range 0 to 511;
+   signal score_x_reg, score_x_next: integer range 0 to 1023;
+   signal score_y_reg, score_y_next: integer range 0 to 511;
    signal off_screen: std_logic;
 
    -- latches the characters to be drawn when start gets asserted
@@ -51,15 +51,15 @@ architecture rtl of ScoreAndLives is
    begin
       if (reset = '1') then
          state_reg <= IDLE;
-         block_x_reg <= 0;
-         block_y_reg <= 0;
+         score_x_reg <= 0;
+         score_y_reg <= 0;
          ascii_reg <= "000000"&"000000"& ASCII_CLN & ASCII_S & ASCII_E & ASCII_V & ASCII_I & ASCII_L;
          text_width_reg <= 0;
          
       elsif (rising_edge(clk)) then
          state_reg <= state_next;
-         block_x_reg <= block_x_next;
-         block_y_reg <= block_y_next;
+         score_x_reg <= score_x_next;
+         score_y_reg <= score_y_next;
          ascii_reg <= ascii_next;
          text_width_reg <= text_width_next;
       end if;
@@ -68,13 +68,13 @@ architecture rtl of ScoreAndLives is
    color <= COLOR_WHITE;
 
    -- combinational circuit
-   process(state_reg, reset, start, x, ascii, ascii_reg, text_count, text_ready, pix_x, pix_y, block_x_reg, block_y_reg, text_width_reg, text_pixel_mask, y_increment, frame_update, stop, off_screen)
+   process(state_reg, reset, start, x, ascii, ascii_reg, text_count, text_ready, pix_x, pix_y, score_x_reg, score_y_reg, text_width_reg, text_pixel_mask, y_increment, frame_update, stop, off_screen)
       variable pix_x_int: integer range 0 to SCREEN_WIDTH_MAX;
       variable pix_y_int: integer range 0 to SCREEN_HEIGHT_MAX;
    begin
       state_next <= state_reg;
-      block_x_next <= block_x_reg;
-      block_y_next <= block_y_reg;
+      score_x_next <= score_x_reg;
+      score_y_next <= score_y_reg;
       ascii_next <= ascii_reg;
       text_width_next <= text_width_reg;
       render_start <= '0';
@@ -83,7 +83,7 @@ architecture rtl of ScoreAndLives is
       case state_reg is
          when IDLE =>
             if (start = '1') then
-               block_x_next  <= to_integer(unsigned(x));
+               score_x_next  <= to_integer(unsigned(x));
                ascii_next <= ascii;
                state_next <= ASCII_START;
             end if;
@@ -94,7 +94,7 @@ architecture rtl of ScoreAndLives is
             state_next <= ASCII_WAIT;
 
          when ASCII_WAIT =>
-            -- busy wait for the RenderText component to finish generating its bits
+            -- busy wait for the RenderText component to finish generating their bits 
             text_width_next <= to_integer(unsigned(text_count)) * 4;
             if (text_ready = '1') then
                state_next <= DRAW;
@@ -105,18 +105,18 @@ architecture rtl of ScoreAndLives is
             pix_y_int := to_integer(unsigned(pix_y));
 
             -- draw out the border as it comes up
-            if (pix_y_int >= block_y_reg and pix_y_int <= block_y_reg+MATH_BLOCK_HEIGHT-1) then
-               if (pix_x_int = block_x_reg) then                         -- left border
+            if (pix_y_int >= score_y_reg and pix_y_int <= score_y_reg+MATH_BLOCK_HEIGHT-1) then
+               if (pix_x_int = score_x_reg) then                         -- left border
                   pix_lives_en <= '1';
                end if;
-               if (pix_x_int = block_x_reg+text_width_reg+5-1) then      -- right border
+               if (pix_x_int = score_x_reg+text_width_reg+5-1) then      -- right border
                   pix_lives_en <= '1';
                end if;
-               if (pix_x_int > block_x_reg and pix_x_int < block_x_reg+text_width_reg+5) then
-                   if (pix_y_int = block_y_reg) then                     -- top border
+               if (pix_x_int > score_x_reg and pix_x_int < score_x_reg+text_width_reg+5) then
+                   if (pix_y_int = score_y_reg) then                     -- top border
                       pix_lives_en <= '1';
                    end if;
-                   if (pix_y_int = block_y_reg+MATH_BLOCK_HEIGHT-1) then -- bottom border
+                   if (pix_y_int = score_y_reg+MATH_BLOCK_HEIGHT-1) then -- bottom border
                       pix_lives_en <= '1';
                    end if;
                end if;
@@ -125,9 +125,9 @@ architecture rtl of ScoreAndLives is
             -- draw out the text pixels
             -- checks if the pixel mask is '1' for the current pix_x and pix_y
             for row in 0 to TEXT_BLOCK_HEIGHT-1 loop
-               if (pix_y_int = block_y_reg+3+row) then -- in the text row
-                  if (pix_x_int > block_x_reg+2 and pix_x_int < block_x_reg+text_width_reg+4) then -- in the text block
-                     pix_lives_en <= text_pixel_mask(TEXT_BLOCK_WIDTH*row + pix_x_int-block_x_reg-3);
+               if (pix_y_int = score_y_reg+3+row) then -- in the text row
+                  if (pix_x_int > score_x_reg+2 and pix_x_int < score_x_reg+text_width_reg+4) then -- in the text block
+                     pix_lives_en <= text_pixel_mask(TEXT_BLOCK_WIDTH*row + pix_x_int-score_x_reg-3);
                   end if;
                end if;
             end loop;
@@ -142,7 +142,7 @@ architecture rtl of ScoreAndLives is
 
          when INTER_FRAME =>
             -- single clock cycle frame intermission to increment the block_y_reg
-            block_y_next <= block_y_reg + to_integer(unsigned(y_increment));
+            score_y_next <= score_y_reg + to_integer(unsigned(y_increment));
             state_next <= DRAW;
 
             if (stop = '1') then
