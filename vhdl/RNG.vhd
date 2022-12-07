@@ -9,7 +9,7 @@
 --
 -----------------------------------------------------------
 -- FSM created with https://github.com/gladclef/FSMs
--- {'fsm_name': 'RNG', 'table_vals': [['', 'locked', 'start', ''], ['RCLK', 'IDLE', '', ''], ['IDLE', '', 'READY', ''], ['READY', '', '', '']]}
+-- {'fsm_name': 'RNG', 'table_vals': [['', 'locked', 'start', ''], ['WAIT_LOCK', 'IDLE', '', ''], ['IDLE', '', 'READY', ''], ['READY', '', '', '']]}
 -----------------------------------------------------------
 
 -- RNG generates random number values
@@ -28,10 +28,12 @@ entity RNG is
       reset:          in std_logic;
 
       -- use delayed locking in the PLLs as an initial source of randomness
+      -- use the pclk (processor clock) to count on the seed while waiting for the other clocks to lock
       rclk1:          in std_logic;
       rclk2:          in std_logic;
       locked1:        in std_logic;
       locked2:        in std_logic;
+      pclk:           in std_logic;
 
       -- game start
       start:          in std_logic;
@@ -51,7 +53,7 @@ entity RNG is
 end RNG;
 
 architecture rtl of RNG is
-   type state_type is (RCLK, IDLE, READY);
+   type state_type is (WAIT_LOCK, IDLE, READY);
    signal state_reg, state_next: state_type;
 
    -- LFSR signals
@@ -61,19 +63,26 @@ architecture rtl of RNG is
    signal lfsr_start: std_logic;
 begin
 
-   -- state and data register
-   process(clk, reset)
+   -- for the initial state, when we're waiting for a lock from the random clocks
+   process(pclk)
    begin
-      if (reset = '1') then
-         state_reg <= RCLK;
-      elsif (rising_edge(clk)) then
-         state_reg <= state_next;
+      if (rising_edge(pclk)) then
          lfsr_seed_reg  <= lfsr_seed_next;
       end if;
    end process;
 
+   -- state and data register
+   process(clk, reset)
+   begin
+      if (reset = '1') then
+         state_reg <= WAIT_LOCK;
+      elsif (rising_edge(clk)) then
+         state_reg <= state_next;
+      end if;
+   end process;
+
    -- combinational circuit
-   process(state_reg, start, lfsr_seed_reg, rclk1, rclk2, locked1, locked2)
+   process(state_reg, start, lfsr_seed_reg, rclk1, rclk2, locked1, locked2, read)
    begin
       state_next     <= state_reg;
       lfsr_seed_next <= lfsr_seed_reg;
@@ -82,10 +91,8 @@ begin
       lfsr_start     <= '0';
 
       case state_reg is
-         when RCLK =>
-            if (rclk1 = '1' and rising_edge(rclk2)) then
-               lfsr_seed_next <= lfsr_seed_reg + 1;
-            end if;
+         when WAIT_LOCK =>
+            lfsr_seed_next <= lfsr_seed_reg + 1;
 
             if (locked1 = '1' and locked2 = '1') then
                state_next <= IDLE;
@@ -105,6 +112,9 @@ begin
                lfsr_start <= '1';
             end if;
 
+         when others =>
+            lfsr_seed_next <= lfsr_seed_reg + 1;
+
       end case;
    end process;
 
@@ -118,5 +128,6 @@ begin
       retval    => randval         -- out
    );
    lfsr_seed <= std_logic_vector(to_unsigned(lfsr_seed_reg,lfsr_seed'length));
+   seed      <= std_logic_vector(to_unsigned(lfsr_seed_reg,lfsr_seed'length));
 
 end rtl;
