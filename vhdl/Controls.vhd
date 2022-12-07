@@ -1,6 +1,6 @@
 -----------------------------------------------------------
 -- Company: University of New Mexico
--- Engineer: Rachel Cazolla, Benjamin Bean
+-- Engineer: Rachel Cazzola, Benjamin Bean
 -- 
 -- Create Date:
 -- Design Name: 

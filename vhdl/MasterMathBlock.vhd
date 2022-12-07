@@ -38,10 +38,11 @@ architecture rtl of MasterMathBlock is
 	signal colors : vectorColorArray;
 	
     begin
+               
+    --creating a for generate loop to generate 4 math blocks
+    for_generate_math_block: for i in 0 to 3 generate
    
-   for_generate_math_block: for i in 0 to 3 generate
-   
-		MathBlock: entity work.MathBlock(rtl)
+    MathBlock: entity work.MathBlock(rtl)
 		port map (
 			reset => reset,
 			clk => clk,
@@ -60,16 +61,13 @@ architecture rtl of MasterMathBlock is
    end generate for_generate_math_block;
    
    process(ascii, pix_ens)
-		
 		variable pix_en_any : std_logic;
-		
 		begin
-		
 		pix_en_any := '0';
    
 		for i in 0 to 3 loop
 			starts(i) <= '1'; 
-			xs(i) <= std_logic_vector(to_unsigned(i*50, 11));
+			xs(i) <= std_logic_vector(to_unsigned(i*200, 11));
 			asciis(i) <= ascii; 
 			pix_en_any := pix_ens(i) or pix_en_any;
 		end loop;

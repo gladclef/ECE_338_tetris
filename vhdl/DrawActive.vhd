@@ -46,6 +46,8 @@ entity DrawActive is
       --present_color: in std_logic_vector(23 downto 0);
       math_block_en: in std_logic;
       math_block_color: in std_logic_vector(23 downto 0);
+      lives_color: in std_logic_vector(23 downto 0);
+      lives_en: in std_logic;
       color_out: out std_logic_vector(23 downto 0)
    );
 end DrawActive;
@@ -56,6 +58,7 @@ begin
    color_out <= COLOR_BLACK when pix_en = '0' else
                 rocket_color when rocket_en = '1' else
                 math_block_color when math_block_en = '1' else
+                lives_color when lives_en = '1' else
                 background_color;
 
 end beh;

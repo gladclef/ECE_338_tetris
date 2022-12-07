@@ -88,6 +88,17 @@ architecture rtl of RenderText is
    CONSTANT CHAR_MIN : std_logic_vector(0 to 14) := "000000011000000";
    CONSTANT CHAR_DIV : std_logic_vector(0 to 14) := "001001010100100";
    CONSTANT CHAR_EQU : std_logic_vector(0 to 14) := "000011000011000";
+   
+   CONSTANT CHAR_L : std_logic_vector(0 to 14) := "100100100100111";
+   CONSTANT CHAR_I : std_logic_vector(0 to 14) := "010010010010010";
+   CONSTANT CHAR_V : std_logic_vector(0 to 14) := "101101101010010";
+   CONSTANT CHAR_E : std_logic_vector(0 to 14) := "111100111100111";
+   CONSTANT CHAR_S : std_logic_vector(0 to 14) := "111100111001111";
+   CONSTANT CHAR_CLN : std_logic_vector(0 to 14) := "000100000100000";
+   
+   CONSTANT CHAR_C : std_logic_vector(0 to 14) := "111100100100111";
+   CONSTANT CHAR_O : std_logic_vector(0 to 14) := "111101101101111";
+   CONSTANT CHAR_R : std_logic_vector(0 to 14) := "111101111101101";
 
    -- Some constants, defined here so that compilation can happen at compile time instead of at runtime.
    -- These are used for indexing into the pixels output vector during the RENDER_CHAR state.
@@ -207,6 +218,25 @@ begin
                char_bits(0 to 14) := CHAR_DIV(0 to 14);
             elsif (ascii_val = ASCII_EQU) then
                char_bits(0 to 14) := CHAR_EQU(0 to 14);
+            elsif (ascii_val = ASCII_CLN) then
+               char_bits(0 to 14) := CHAR_CLN(0 to 14);
+            elsif (ascii_val = ASCII_S) then
+               char_bits(0 to 14) := CHAR_S(0 to 14);
+            elsif (ascii_val = ASCII_E) then
+               char_bits(0 to 14) := CHAR_E(0 to 14);
+            elsif (ascii_val = ASCII_V) then
+               char_bits(0 to 14) := CHAR_V(0 to 14);
+            elsif (ascii_val = ASCII_I) then
+               char_bits(0 to 14) := CHAR_I(0 to 14);
+            elsif (ascii_val = ASCII_L) then
+               char_bits(0 to 14) := CHAR_L(0 to 14);
+            elsif (ascii_val = ASCII_C) then
+               char_bits(0 to 14) := CHAR_C(0 to 14);
+            elsif (ascii_val = ASCII_O) then
+               char_bits(0 to 14) := CHAR_O(0 to 14);                              
+            elsif (ascii_val = ASCII_R) then
+               char_bits(0 to 14) := CHAR_R(0 to 14); 
+                                   
             end if;
 
             pixels_next(render_x_reg+ROW0 to render_x_reg+ROW0+2) <= char_bits(0 to 2);
