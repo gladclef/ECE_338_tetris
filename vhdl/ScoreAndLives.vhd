@@ -64,8 +64,8 @@ begin
          
       elsif (rising_edge(clk)) then
          state_reg <= state_next;
-         score_x_reg <= score_x_next;
-         score_y_reg <= score_y_next;
+         block_x_reg <= block_x_next;
+         block_y_reg <= block_y_next;
          ascii_reg <= ascii_next;
          text_width_reg <= text_width_next;
       end if;
@@ -79,8 +79,8 @@ begin
       variable pix_y_int: integer range 0 to SCREEN_HEIGHT_MAX;
    begin
       state_next <= state_reg;
-      score_x_next <= score_x_reg;
-      score_y_next <= score_y_reg;
+      block_x_next <= block_x_reg;
+      block_y_next <= block_y_reg;
       ascii_next <= ascii_reg;
       text_width_next <= text_width_reg;
       render_start <= '0';
@@ -114,11 +114,11 @@ begin
                if (pix_x_int = block_x_reg) then                         -- left border
                   pix_lives_en <= '1';
                end if;
-               if (pix_x_int = score_x_reg+text_width_reg+5-1) then      -- right border
+               if (pix_x_int = block_x_reg+text_width_reg+5-1) then      -- right border
                   pix_lives_en <= '1';
                end if;
-               if (pix_x_int > score_x_reg and pix_x_int < score_x_reg+text_width_reg+5) then
-                   if (pix_y_int = score_y_reg) then                     -- top border
+               if (pix_x_int > block_x_reg and pix_x_int < block_x_reg+text_width_reg+5) then
+                   if (pix_y_int = block_y_reg) then                     -- top border
                       pix_lives_en <= '1';
                    end if;
                    if (pix_y_int = block_y_reg+FULL_HEIGHT-1) then -- bottom border

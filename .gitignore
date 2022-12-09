@@ -24,3 +24,7 @@ _vivado/vivado_pid*.str
 _vivado/*.ip_user_files/README.txt
 _vivado/vitis*.str
 _vivado/*.sim
+
+# characterization files
+vivado_pll_characterization
+media/pll_locked_analysis

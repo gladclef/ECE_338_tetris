@@ -28,12 +28,10 @@ entity RNG is
       reset:          in std_logic;
 
       -- use delayed locking in the PLLs as an initial source of randomness
-      -- use the pclk (processor clock) to count on the seed while waiting for the other clocks to lock
-      rclk1:          in std_logic;
-      rclk2:          in std_logic;
-      locked1:        in std_logic;
-      locked2:        in std_logic;
+      -- use the pclk (processor clock) to count on the seed while waiting for the rclk clock to lock
       pclk:           in std_logic;
+      rclk_locked:    in std_logic;
+      rclk_resetn:    out std_logic;
 
       -- game start
       start:          in std_logic;
@@ -57,10 +55,16 @@ architecture rtl of RNG is
    signal state_reg, state_next: state_type;
 
    -- LFSR signals
-   signal lfsr_seed_reg, lfsr_seed_next: integer range 2**11-1 downto 0;
-   signal lfsr_seed: std_logic_vector(10 downto 0);
+   signal lfsr_seed_reg, lfsr_seed_next: integer range 2**seed'length-1 downto 0;
+   signal lfsr_seed:      std_logic_vector(10 downto 0);
    signal lfsr_load_seed: std_logic;
-   signal lfsr_start: std_logic;
+   signal lfsr_start:     std_logic;
+   signal lfsr_randval:   std_logic_vector(10 downto 0);
+
+   -- TRNG signals
+   signal trng_newval:         std_logic;                     -- goes high for one clock cycle when there is a new trng_val
+   signal trng_val:            std_logic_vector(10 downto 0); -- a truly random value
+   signal trng_load_reg, trng_load_next: std_logic;           -- the latched version of trnv_newval
 begin
 
    -- for the initial state, when we're waiting for a lock from the random clocks
@@ -75,26 +79,29 @@ begin
    process(clk, reset)
    begin
       if (reset = '1') then
-         state_reg <= WAIT_LOCK;
+         state_reg     <= WAIT_LOCK;
+         trng_load_reg <= '0';
       elsif (rising_edge(clk)) then
-         state_reg <= state_next;
+         state_reg     <= state_next;
+         trng_load_reg <= trng_load_next;
       end if;
    end process;
 
    -- combinational circuit
-   process(state_reg, start, lfsr_seed_reg, rclk1, rclk2, locked1, locked2, read)
+   process(state_reg, start, lfsr_seed_reg, rclk_locked, read, trng_load_reg, trng_val, trng_newval)
    begin
       state_next     <= state_reg;
       lfsr_seed_next <= lfsr_seed_reg;
       
       lfsr_load_seed <= '0';
       lfsr_start     <= '0';
+      trng_load_next <= '0';
 
       case state_reg is
          when WAIT_LOCK =>
             lfsr_seed_next <= lfsr_seed_reg + 1;
 
-            if (locked1 = '1' and locked2 = '1') then
+            if (rclk_locked = '1') then
                state_next <= IDLE;
                lfsr_start <= '1';
                lfsr_load_seed <= '1';
@@ -108,6 +115,25 @@ begin
             end if;
 
          when READY =>
+            -- Every time we have a new truly random value, add it to
+            -- the current random value and start generating at a fresh
+            -- location by reseeding the LFSR.
+            -- Take an extra clock cycle to do this to relieve some
+            -- of the timing constraints of the logic, which is kind of
+            -- already a lot between the xor and the load_seed.
+            if (trng_newval = '1') then
+               xor_loop: for i in 0 to 10 generate
+                   lfsr_seed_next(i) <= trng_val(i) xor lfsr_randval(i);
+               end generate;
+               trng_load_next <= '1';
+            end if;
+            if (trng_load_reg = '1') then
+               lfsr_seed      <= trng_seed_reg;
+               lfsr_load_seed <= '1';
+               lfsr_start     <= '1';
+            end if;
+
+            -- every time a value is read, generate the next LFSR value
             if (read = '1') then
                lfsr_start <= '1';
             end if;
@@ -125,9 +151,24 @@ begin
       start     => lfsr_start,     -- in
       load_seed => lfsr_load_seed, -- in
       seed      => lfsr_seed,      -- in
-      retval    => randval         -- out
+      retval    => lfsr_randval    -- out
    );
    lfsr_seed <= std_logic_vector(to_unsigned(lfsr_seed_reg,lfsr_seed'length));
    seed      <= std_logic_vector(to_unsigned(lfsr_seed_reg,lfsr_seed'length));
+   randval   <= lfsr_randval;
+
+   trng: entity work.TRNG(rtl)
+   port map(
+      -- standard values
+      clk         => clk,         -- in
+
+      -- rclk values
+      rclk_locked => rclk_locked, -- in
+      rclk_resetn => rclk_resetn, -- out
+
+      -- results
+      new_rval    => trng_newval, -- out
+      rval        => trng_val     -- out
+   );
 
 end rtl;
