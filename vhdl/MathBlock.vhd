@@ -105,8 +105,8 @@ begin
    begin
       if (reset = '1') then
          state_reg <= IDLE;
-         block_x_reg <= 25;
-         block_y_reg <= 25;
+         block_x_reg <= 0;
+         block_y_reg <= 0;
          ascii_reg <= (others => '0');
          text_width_reg <= 0;
       elsif (rising_edge(clk)) then
