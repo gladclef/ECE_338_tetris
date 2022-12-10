@@ -52,8 +52,8 @@ begin
          block_x_reg <= 0;
          block_y_reg <= SCREEN_HEIGHT-FULL_HEIGHT-1; -- -1 for 0 indexing of pix_y
          lives_reg <= "000000"&"000000" & ASCII_CLN & ASCII_S & ASCII_E & ASCII_V & ASCII_I & ASCII_L;
-         score_reg <= "000000"&"000000" & ASCII_CLN & ASCII_E & ASCII_R & ASCII_O & ASCII_C & ASCII_S;
          lives_text_width_reg <= 0;
+         score_reg <= "000000"&"000000" & ASCII_CLN & ASCII_E & ASCII_R & ASCII_O & ASCII_C & ASCII_S; 
          score_text_width_reg <= 0;
          
       elsif (rising_edge(clk)) then
@@ -124,7 +124,7 @@ begin
                    if (pix_y_int = block_y_reg+FULL_HEIGHT-1) then -- bottom border
                       pix_LivesScore_en <= '1';
                    end if;
-               end if;
+               end if;                              
             end if;
 
             -- draw out the text pixels
@@ -138,7 +138,7 @@ begin
                end if;
 
                -- draw the score text
-               if (pix_y_int = block_y_reg+BORDER_SIZE+row) then -- in the text row
+               if (pix_y_int = block_y_reg+8+BORDER_SIZE+row) then -- in the text row
                   if (pix_x_int > block_x_reg+BORDER_SIZE-1 and pix_x_int < block_x_reg+score_text_width_reg+(BORDER_SIZE-1)*2) then  -- in the text block
                      pix_LivesScore_en <= score_text_pixel_mask(TEXT_BLOCK_WIDTH*row + pix_x_int-block_x_reg-BORDER_SIZE);
                   end if;
