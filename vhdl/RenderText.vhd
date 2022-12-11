@@ -161,7 +161,6 @@ begin
                state_next <= COUNT_CHARS;
                idx_next <= 0;
                count_next <= 0;
-               render_x_next <= 0;
             end if;
 
          when COUNT_CHARS =>
@@ -174,6 +173,7 @@ begin
             if (idx_reg = MATH_BLOCK_MAX_CHARS-1) then
                -- go to the next state once we've counted all the characters
                idx_next <= 0;
+               render_x_next <= 0;
                state_next <= RENDER;
             else
                idx_next <= idx_reg+1;
@@ -236,7 +236,6 @@ begin
                char_bits(0 to 14) := CHAR_O(0 to 14);                              
             elsif (ascii_val = ASCII_R) then
                char_bits(0 to 14) := CHAR_R(0 to 14); 
-                                   
             end if;
 
             pixels_next(render_x_reg+ROW0 to render_x_reg+ROW0+2) <= char_bits(0 to 2);

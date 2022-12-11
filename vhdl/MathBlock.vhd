@@ -54,6 +54,10 @@ entity MathBlock is
       stop:         in std_logic;
       ready:        out std_logic;
 
+      -- correctness
+      correctness:  in std_logic;
+      is_correct:   out std_logic;
+
       -- where to place the block, and what it should display
       x:            in std_logic_vector(10 downto 0);
       ascii:        in std_logic_vector(MATH_BLOCK_MAX_CHARS*ASCII_NB-1 downto 0);
@@ -61,7 +65,7 @@ entity MathBlock is
       -- vertical speed of the block
       y_increment:  in std_logic_vector(MAX_FALL_RATE_NB-1 downto 0);
 
-      -- the pixel that is currently being rendered
+      -- the pixel that is currently being drawn
       pix_x:        in std_logic_vector(10 downto 0);
       pix_y:        in std_logic_vector(9 downto 0);
 
@@ -83,8 +87,9 @@ architecture rtl of MathBlock is
    signal block_y_reg, block_y_next: integer range 0 to 511;
    signal off_screen: std_logic;
 
-   -- latches the characters to be drawn when start gets asserted
+   -- latched values when start gets asserted
    signal ascii_reg, ascii_next: std_logic_vector(MATH_BLOCK_MAX_CHARS*ASCII_NB-1 downto 0);
+   signal is_correct_reg, is_correct_next: std_logic;
 
    -- signals to and from the RenderText module
    --   render_start:    starts the RenderText module
@@ -108,38 +113,44 @@ begin
          block_x_reg <= 25;
          block_y_reg <= 25;
          ascii_reg <= (others => '0');
+         is_correct_reg <= '0';
          text_width_reg <= 0;
       elsif (rising_edge(clk)) then
          state_reg <= state_next;
          block_x_reg <= block_x_next;
          block_y_reg <= block_y_next;
          ascii_reg <= ascii_next;
+         is_correct_reg <= is_correct_next;
          text_width_reg <= text_width_next;
       end if;
    end process;
 
    off_screen <= '1' when (block_y_reg > 479) else '0';
    ready <= '1' when state_reg = IDLE else '0';
-   color <= COLOR_WHITE;
 
    -- combinational circuit
-   process(state_reg, reset, start, x, ascii, ascii_reg, text_count, text_ready, pix_x, pix_y, block_x_reg, block_y_reg, text_width_reg, text_pixel_mask, y_increment, frame_update, stop, off_screen)
+   process(state_reg, reset, start, x, ascii, correctness, ascii_reg, is_correct_reg, text_count, text_ready, pix_x, pix_y, block_x_reg, block_y_reg, text_width_reg, text_pixel_mask, y_increment, frame_update, stop, off_screen)
       variable pix_x_int: integer range 0 to SCREEN_WIDTH_MAX;
       variable pix_y_int: integer range 0 to SCREEN_HEIGHT_MAX;
+      variable var_pix_en: std_logic;
    begin
       state_next <= state_reg;
       block_x_next <= block_x_reg;
       block_y_next <= block_y_reg;
       ascii_next <= ascii_reg;
+      is_correct_next <= is_correct_reg;
       text_width_next <= text_width_reg;
       render_start <= '0';
       pix_mb_en <= '0';
+
+      color <= COLOR_WHITE;
 
       case state_reg is
          when IDLE =>
             if (start = '1') then
                block_x_next  <= to_integer(unsigned(x));
                ascii_next <= ascii;
+               is_correct_next <= correctness;
                state_next <= ASCII_START;
             end if;
 
@@ -158,22 +169,31 @@ begin
          when DRAW =>
             pix_x_int := to_integer(unsigned(pix_x));
             pix_y_int := to_integer(unsigned(pix_y));
+            var_pix_en := '0';
 
             -- draw out the border as it comes up
             if (pix_y_int >= block_y_reg and pix_y_int <= block_y_reg+MATH_BLOCK_HEIGHT-1) then
                if (pix_x_int = block_x_reg) then                         -- left border
-                  pix_mb_en <= '1';
+                  var_pix_en := '1';
                end if;
                if (pix_x_int = block_x_reg+text_width_reg+5-1) then      -- right border
-                  pix_mb_en <= '1';
+                  var_pix_en := '1';
                end if;
                if (pix_x_int > block_x_reg and pix_x_int < block_x_reg+text_width_reg+5) then
                    if (pix_y_int = block_y_reg) then                     -- top border
-                      pix_mb_en <= '1';
+                      var_pix_en := '1';
                    end if;
                    if (pix_y_int = block_y_reg+MATH_BLOCK_HEIGHT-1) then -- bottom border
-                      pix_mb_en <= '1';
+                      var_pix_en := '1';
                    end if;
+               end if;
+
+               if (var_pix_en = '1') then
+                  if (is_correct_reg = '1') then
+                     color <= COLOR_GREEN;
+                  else
+                     color <= COLOR_RED;
+                  end if;
                end if;
             end if;
 
@@ -181,8 +201,8 @@ begin
             -- checks if the pixel mask is '1' for the current pix_x and pix_y
             for row in 0 to TEXT_BLOCK_HEIGHT-1 loop
                if (pix_y_int = block_y_reg+3+row) then -- in the text row
-                  if (pix_x_int > block_x_reg+2 and pix_x_int < block_x_reg+text_width_reg+4) then -- in the text block
-                     pix_mb_en <= text_pixel_mask(TEXT_BLOCK_WIDTH*row + pix_x_int-block_x_reg-3);
+                  if (pix_x_int > block_x_reg+2 and pix_x_int < block_x_reg+text_width_reg+3) then -- in the text block
+                     var_pix_en := text_pixel_mask(TEXT_BLOCK_WIDTH*row + pix_x_int-block_x_reg-3);
                   end if;
                end if;
             end loop;
@@ -194,6 +214,8 @@ begin
             elsif (off_screen = '1') then
                state_next <= IDLE;
             end if;
+
+            pix_mb_en <= var_pix_en;
 
          when INTER_FRAME =>
             -- single clock cycle frame intermission to increment the block_y_reg
@@ -208,6 +230,8 @@ begin
 
       end case;
    end process;
+
+   is_correct <= is_correct_reg;
 
    render_text: entity work.RenderText(rtl)
    port map (

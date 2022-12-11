@@ -88,7 +88,8 @@ begin
    end process;
 
    -- combinational circuit
-   process(state_reg, start, lfsr_seed_reg, rclk_locked, read, trng_load_reg, trng_val, trng_newval)
+   process(state_reg, start, lfsr_randval, lfsr_seed_reg, rclk_locked, read, trng_load_reg, trng_val, trng_newval)
+      variable slv: std_logic_vector(10 downto 0);
    begin
       state_next     <= state_reg;
       lfsr_seed_next <= lfsr_seed_reg;
@@ -122,13 +123,13 @@ begin
             -- of the timing constraints of the logic, which is kind of
             -- already a lot between the xor and the load_seed.
             if (trng_newval = '1') then
-               xor_loop: for i in 0 to 10 generate
-                   lfsr_seed_next(i) <= trng_val(i) xor lfsr_randval(i);
-               end generate;
+               for i in 0 to 10 loop
+                   slv(i) := trng_val(i) xor lfsr_randval(i);
+               end loop;
+               lfsr_seed_next <= to_integer(unsigned(slv));
                trng_load_next <= '1';
             end if;
             if (trng_load_reg = '1') then
-               lfsr_seed      <= trng_seed_reg;
                lfsr_load_seed <= '1';
                lfsr_start     <= '1';
             end if;
