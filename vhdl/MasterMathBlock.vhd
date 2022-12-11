@@ -205,9 +205,9 @@ begin
                else
                   -- create a new math block on a random time interval
                   read_rand <= '1';
-                  --if (rand_511 = "11110000") then -- every 4 seconds at 60 fps
+                  if (rand_511 = "001111000") then -- average 2 seconds at 60 fps
                      create_new := '1';
-                  --end if;
+                  end if;
                end if;
                if (create_new = '1') then
                   state_next <= GEN_FIRST;
