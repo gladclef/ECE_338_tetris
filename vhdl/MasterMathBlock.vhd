@@ -252,13 +252,13 @@ begin
             v1 := to_integer(unsigned(gen_first_reg));
             v2 := to_integer(unsigned(gen_second_reg));
             if randop = DIVIDE or randop = MULTIPLY then
-               gen_second_next <= gen_second_reg and "0001111";    -- limit 2nd to 15
-               if gen_second_reg(3 downto 2) = "11" then          --   if 2nd >= 12, "xx11xx"
-                  gen_first_next <= gen_first_reg and "0000111";   --     limit 3rd to 0-7
-               elsif gen_second_reg(3 downto 2) = "10" then       --   if 2nd >= 8, "xx10xx"
-                  gen_first_next <= std_logic_vector(to_unsigned( v1 mod 11, gen_first_reg'length)); -- limit 3rd to 10
-               elsif gen_second_reg(3 downto 1) = "100" then      --   if 2nd < 8, "xx100x"
-                  gen_first_next <= gen_first_reg and "0001111";   --     limit 3rd to 15
+               gen_second_next <= std_logic_vector(to_unsigned(v2 mod 15, gen_first_reg'length));    -- limit 2nd to 14
+               if gen_second_reg(3 downto 2) = "11" then                                             --   if 2nd >= 12, "xx11xx"
+                  gen_first_next <= gen_first_reg and "0000111";                                     --     limit 3rd to 0-7
+               elsif gen_second_reg(3 downto 2) = "10" then                                          --   if 2nd >= 8, "xx10xx"
+                  gen_first_next <= std_logic_vector(to_unsigned( v1 mod 10, gen_first_reg'length)); --     limit 3rd to 9
+               else                                                                                  --   if 2nd < 8, "xx100x"
+                  gen_first_next <= std_logic_vector(to_unsigned(v1 mod 15, gen_first_reg'length));  --     limit 3rd to 14
                end if;
             else -- SUBTRACTION or ADDITION
                gen_first_next  <= std_logic_vector(to_unsigned( v1 mod 51, gen_first_reg'length));
