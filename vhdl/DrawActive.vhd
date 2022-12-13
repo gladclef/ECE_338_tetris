@@ -48,6 +48,8 @@ entity DrawActive is
       math_block_color: in std_logic_vector(23 downto 0);
       livesAndScoreColor: in std_logic_vector(23 downto 0);
       livesAndScore_en: in std_logic;
+      bullet_en: in std_logic;
+      bullet_color: in std_logic_vector(23 downto 0);
       color_out: out std_logic_vector(23 downto 0)
    );
 end DrawActive;
@@ -59,6 +61,7 @@ begin
                 rocket_color when rocket_en = '1' else
                 math_block_color when math_block_en = '1' else
                 livesAndScoreColor when livesAndScore_en = '1' else
+                bullet_color when bullet_en = '1' else
                 background_color;
 
 end beh;

@@ -39,7 +39,9 @@ entity Controls is
       ctrl_buttons:      in std_logic_vector(4 downto 0);
       ctrl_horizontal:   in std_logic_vector(7 downto 0);
       active_controller: in std_logic;
+      bullet_button:     in std_logic;
       x_increment:       out std_logic_vector(ROCKET_MAX_MOVE_RATE_NB downto 0); -- signed, include an extra bit for negatives
+      y_increment:       out std_logic_vector(MAX_FALL_RATE_NB-1 downto 0);
       up:                out std_logic;
       down:              out std_logic;
       left:              out std_logic;
@@ -79,7 +81,7 @@ begin
    ctrl_joysel <= ctrl_buttons(4) AND active_controller;
 
    -- interpret horizontal values
-   process (ctrl_horizontal, active_controller)
+   process (ctrl_horizontal, active_controller, ctrl_hor_val)
       variable hor_val: signed(ROCKET_MAX_MOVE_RATE_NB downto 0);
       variable hor_ord: std_logic;
    begin
@@ -98,6 +100,8 @@ begin
          ctrl_hor_val <= ROCKET_MAX_MOVE_RATE;
       end if; 
       -- Rachel Cazzola
+      --if (bullet = '1') then
+        
       if (active_controller = '0') then -- switch that controls whether we use the board or controller as our controls
          ctrl_hor_val <= 0; 
       end if;    

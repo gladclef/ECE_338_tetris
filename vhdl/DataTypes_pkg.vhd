@@ -56,7 +56,8 @@ package DataTypes_pkg is
    CONSTANT ROCKET_MAX_MOVE_RATE_NB : integer := 3;
    CONSTANT ROCKET_ADDR_MAX : integer := 1023; -- ROCKET_WIDTH*ROCKET_HEIGHT-1
    CONSTANT ROCKET_ADDR_NB : integer := 10; -- log(ROCKET_ADDR_MAX)
-    
+   CONSTANT BULLET_ADDR_MAX : integer := 6; --BULLET_WIDTH*BULLET_HEIGHT-1;
+
    CONSTANT ASCII_NB : integer := 6;
    CONSTANT ASCII_NUL : std_logic_vector(ASCII_NB-1 downto 0) := (others => '0');
    CONSTANT ASCII_A :   std_logic_vector(ASCII_NB-1 downto 0) := std_logic_vector(to_unsigned(65-64,ASCII_NB));
