@@ -67,7 +67,7 @@ architecture rtl of Bullet is
       case state_reg is
          when IDLE =>
             -- state logic
-            if (start = '1') then
+            if (bullet_button = '1') then
                bullet_x_next  <= to_integer(unsigned(x_mid_start)); -- x_mid_start := std_logic_vector(to_unsigned(x_reg + ROCKET_WIDTH/2,x_mid'length));
                state_next <= ACTIVE;  
             end if;
@@ -84,14 +84,18 @@ architecture rtl of Bullet is
                      "1" &
                      "1";
 
-            -- if bullet button is pressed draw bullet
-            if (bullet_button = '1') then
-                pix_bullet_en <= rbits(draw_addr_reg);
-                color <= COLOR_BLUE;
-                if (draw_addr_reg /= BULLET_ADDR_MAX) then
-                    draw_addr_next <= draw_addr_reg + 1;
+            -- draw the bullet if within the borders of the current bullet position
+                if (pix_en = '1') then
+                    if (pix_y_int >= BULLET_Y and pix_y_int < SCREEN_HEIGHT) then
+                        if (pix_x_int >= bullet_x_reg and pix_x_int < bullet_x_reg+BULLET_WIDTH) then        
+                            pix_bullet_en <= rbits(draw_addr_reg);
+                            color <= COLOR_BLUE;
+                            if (draw_addr_reg /= BULLET_ADDR_MAX) then
+                                draw_addr_next <= draw_addr_reg + 1;
+                            end if;
+                        end if;
+                    end if;
                 end if;
-            end if;
 
             if (frame_update = '1') then
                state_next <= INTER_FRAME;
