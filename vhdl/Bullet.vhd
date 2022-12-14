@@ -12,7 +12,7 @@ entity Bullet is
       pix_en: in std_logic;
       bullet_button: in std_logic;
       x_mid_start: in std_logic_vector(SCREEN_WIDTH_NB-1 downto 0);
-      y_increment:  in std_logic_vector(MAX_FALL_RATE_NB-1 downto 0);
+      y_increment_bullet:  in std_logic_vector(MAX_FALL_RATE_NB-1 downto 0);
       pix_x: in std_logic_vector(SCREEN_WIDTH_NB-1 downto 0);
       pix_y: in std_logic_vector(SCREEN_HEIGHT_NB-1 downto 0);
       pix_bullet_en: out std_logic;
@@ -50,7 +50,7 @@ architecture rtl of Bullet is
    off_screen <= '1' when (bullet_y_reg < 0) else '0';  
    
    -- combinational circuit
-   process(state_reg, reset, start, stop, y_increment, pix_x, pix_y, frame_update, draw_addr_reg, bullet_x_reg, bullet_y_reg)
+   process(state_reg, reset, start, stop, y_increment_bullet, pix_x, pix_y, frame_update, draw_addr_reg, bullet_x_reg, bullet_y_reg)
       variable rbits: std_logic_vector(0 to BULLET_ADDR_MAX);
       variable pix_x_int: integer range -SCREEN_WIDTH_MAX to SCREEN_WIDTH_MAX;
       variable pix_y_int: integer range 0 to SCREEN_HEIGHT_MAX;
@@ -85,17 +85,17 @@ architecture rtl of Bullet is
                      "1";
 
             -- draw the bullet if within the borders of the current bullet position
-                if (pix_en = '1') then
-                    if (pix_y_int >= BULLET_Y and pix_y_int < SCREEN_HEIGHT) then
-                        if (pix_x_int >= bullet_x_reg and pix_x_int < bullet_x_reg+BULLET_WIDTH) then        
-                            pix_bullet_en <= rbits(draw_addr_reg);
-                            color <= COLOR_BLUE;
-                            if (draw_addr_reg /= BULLET_ADDR_MAX) then
-                                draw_addr_next <= draw_addr_reg + 1;
-                            end if;
+            if (pix_en = '1') then
+                if (pix_y_int >= BULLET_Y and pix_y_int < SCREEN_HEIGHT and pix_y_int > bullet_y_reg) then
+                    if (pix_x_int >= bullet_x_reg and pix_x_int < bullet_x_reg+BULLET_WIDTH) then        
+                        pix_bullet_en <= rbits(draw_addr_reg);
+                        color <= COLOR_BLUE;
+                        if (draw_addr_reg /= BULLET_ADDR_MAX) then
+                            draw_addr_next <= draw_addr_reg + 1;
                         end if;
                     end if;
                 end if;
+            end if;
 
             if (frame_update = '1') then
                state_next <= INTER_FRAME;
@@ -107,7 +107,7 @@ architecture rtl of Bullet is
 
          when INTER_FRAME =>
             -- single clock cycle frame intermission to increment the bullet_y_reg
-            bullet_y_next <= bullet_y_reg + to_integer(unsigned(y_increment));
+            bullet_y_next <= bullet_y_reg - to_integer(unsigned(y_increment_bullet));
             state_next <= ACTIVE;
 
             if (stop = '1') then

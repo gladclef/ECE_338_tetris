@@ -33,7 +33,8 @@ entity TestingValues is
       y_increment:        out std_logic_vector(MAX_FALL_RATE_NB-1 downto 0);
       stop:               out std_logic;
       x_increment:        out std_logic_vector(ROCKET_MAX_MOVE_RATE_NB downto 0); -- signed, include an extra bit for negatives
-      color_black:        out std_logic_vector(2 downto 0)
+      color_black:        out std_logic_vector(2 downto 0);
+      y_increment_bullet: out std_logic_vector(MAX_FALL_RATE_NB-1 downto 0)
    );
 end TestingValues;
 
@@ -48,9 +49,11 @@ begin
    --                                     9         =           5         +           4
    ex4p5e9 <= "000000"&"000000"&"000000"& ASCII_9 & ASCII_EQU & ASCII_5 & ASCII_PLU & ASCII_4;
    
-   y_increment <= (others => '0');
+   y_increment <= "00001";
    stop <= '0';
    x_increment <= (others => '0');
    color_black <= (others => '0');
+   
+   y_increment_bullet <= "00010";
 
 end rtl;
