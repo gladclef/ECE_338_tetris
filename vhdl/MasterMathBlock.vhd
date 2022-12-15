@@ -58,7 +58,7 @@ entity MasterMathBlock is
 end MasterMathBlock;
 
 architecture rtl of MasterMathBlock is
-   type state_type is (IDLE, GEN_FIRST, GEN_SECOND, GEN_OP, GEN_RESULT, GEN_INCORRECT, GEN_ASCII, ACTIVATE_BLOCK, COUNT_ACTIVE);
+   type state_type is (IDLE, COUNT_ACTIVE, GEN_FIRST, GEN_SECOND, GEN_OP, GEN_RESULT, GEN_INCORRECT, GEN_ASCII, ACTIVATE_BLOCK);
    signal state_reg, state_next: state_type;
 
    -- Arrays of values, one value per math block
@@ -94,12 +94,11 @@ architecture rtl of MasterMathBlock is
    signal gen_num_reg, gen_num_next:         integer range 0 to 99;
    signal gen_ascii_reg, gen_ascii_next:     std_logic_vector(MATH_BLOCK_MAX_CHARS*ASCII_NB-1 downto 0);
 
-   -- count the number of active blocks, so that we know if any can be recycled for "creation"
-   signal n_active_reg, n_active_next:       integer range 0 to NUM_MB;
+   -- find the next ready math block, so that we know if any can be recycled for "creation"
    signal first_ready_reg, first_ready_next: integer range 0 to NUM_MB;
 
    -- counter, used in several states
-   signal i_reg, i_next:               integer range 0 to 8; --maximum(NUM_MB, MATH_BLOCK_MAX_CHARS);
+   signal i_reg, i_next:                     integer range 0 to 8; --maximum(NUM_MB, MATH_BLOCK_MAX_CHARS);
 
 begin
 
@@ -123,7 +122,6 @@ begin
          gen_result_reg    <= (others => '0');
          gen_num_reg       <= 0;
          gen_ascii_reg     <= (others => '0');
-         n_active_reg      <= 0;
          first_ready_reg   <= 0;
          i_reg             <= 0;
       elsif (rising_edge(clk)) then
@@ -143,14 +141,13 @@ begin
          gen_result_reg    <= gen_result_next;
          gen_num_reg       <= gen_num_next;
          gen_ascii_reg     <= gen_ascii_next;
-         n_active_reg      <= n_active_next;
          first_ready_reg   <= first_ready_next;
          i_reg             <= i_next;
       end if;
    end process;
 
    -- combinational circuit
-   process(state_reg, starts_reg, xs_reg, asciis_reg, set_correct_reg, frame_update, n_interframes_reg, n_correct_reg, n_incorrect_reg, gen_first_reg, gen_second_reg, gen_op_reg, gen_result_reg, gen_num_reg, gen_ascii_reg, n_active_reg, first_ready_reg, i_reg, randval, readys)
+   process(state_reg, counter_reg, starts_reg, xs_reg, asciis_reg, set_correct_reg, frame_update, n_interframes_reg, n_correct_reg, n_incorrect_reg, gen_first_reg, gen_second_reg, gen_op_reg, gen_result_reg, gen_num_reg, gen_ascii_reg, first_ready_reg, i_reg, randval, readys)
       variable create_new : std_logic;
       variable create_correct : std_logic;
       variable rand_t3  : std_logic_vector(1 downto 0);
@@ -181,7 +178,6 @@ begin
       gen_result_next    <= gen_result_reg;
       gen_num_next       <= gen_num_reg;
       gen_ascii_next     <= gen_ascii_reg;
-      n_active_next      <= n_active_reg;
       first_ready_next   <= first_ready_reg;
       i_next             <= i_reg;
 
@@ -196,10 +192,15 @@ begin
             if (frame_update = '1') then
                create_new := '0';
 
+               -- Deassert start for all math blocks.
+               -- If we don't do this, then the math blocks will loop forever
+               -- between IDLE and DRAW once they are offscreen.
+               for i in 0 to NUM_MB-1 loop
+                  starts_next(i) <= '0';
+               end loop;
+
                -- determine if we should create a new math block
                if (n_interframes_reg < MIN_INTER_FRAMES) then
-                  -- can't create a new math block
-               elsif n_active_reg = NUM_MB then
                   -- can't create a new math block
                elsif (n_interframes_reg > MAX_INTER_FRAMES) then
                   -- must create a new math block
@@ -212,10 +213,35 @@ begin
                   end if;
                end if;
                if (create_new = '1') then
-                  state_next <= GEN_FIRST;
-                  n_interframes_next <= 0;
+                  -- get ready for the next state
+                  i_next <= 0;
+                  first_ready_next <= NUM_MB;
+                  -- go check if we have math blocks available
+                  state_next <= COUNT_ACTIVE;
                else
                   n_interframes_next <= n_interframes_reg + 1;
+               end if;
+            end if;
+
+         when COUNT_ACTIVE =>
+            if (i_reg < NUM_MB) then
+               -- count MB(i) as active if ready
+               i_next <= i_reg + 1;
+               if readys(i_reg) = '1' then
+                  first_ready_next <= i_reg;
+                  i_next <= NUM_MB;
+               end if;
+
+            -- Done counting? Then either create the next math block if one is available,
+            -- or else go back to IDLE to wait for a math block to become available.
+            else --if (i_reg = NUM_MB) then
+               i_next <= 0;
+               if (first_ready_reg /= NUM_MB) then
+                  -- there's a ready math block available! use it!
+                  state_next <= GEN_FIRST;
+               else
+                  -- no math blocks available, can't create a new math block
+                  state_next <= IDLE;
                end if;
             end if;
 
@@ -444,36 +470,10 @@ begin
             xs_next(first_ready_reg)     <= std_logic_vector(to_unsigned(   to_integer(unsigned(rand_511)) + (SCREEN_WIDTH - 512 - MATH_BLOCK_MAX_WIDTH/2),   11));
             asciis_next(first_ready_reg) <= gen_ascii_reg;
 
-            -- get ready for the next state
-            i_next <= 0;
-            n_active_next <= 0;
-            first_ready_next <= NUM_MB;
+            -- register that we just created a new math block
+            n_interframes_next <= 0;
 
-            state_next <= COUNT_ACTIVE;
-
-         when COUNT_ACTIVE =>
-            -- Deassert start for all math blocks.
-            -- If we don't do this, then the math blocks will loop forever
-            -- between IDLE and DRAW once they are offscreen.
-            for i in 0 to NUM_MB loop
-               starts_next(first_ready_reg) <= '0';
-            end loop;
-
-            -- count MB(i) as active if ready
-            i_next <= i_reg + 1;
-            if readys(i_reg) = '1' then
-               if first_ready_reg = NUM_MB then
-                  first_ready_next <= i_reg;
-               end if;
-            else
-               n_active_next <= n_active_reg + 1;
-            end if;
-
-            -- done counting? then go back to idle so we can create the next MB
-            if (i_reg = NUM_MB-1) then
-               i_next <= 0;
-               state_next <= IDLE;
-            end if;
+            state_next <= IDLE;
 
       end case;
 

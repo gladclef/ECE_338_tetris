@@ -125,13 +125,13 @@ begin
       end if;
    end process;
 
-   off_screen <= '1' when (block_y_reg > 479) else '0';
+   off_screen <= '1' when (block_y_reg = SCREEN_HEIGHT - ROCKET_HEIGHT - MATH_BLOCK_HEIGHT) else '0';
    ready <= '1' when state_reg = IDLE else '0';
 
    -- combinational circuit
    process(state_reg, reset, start, x, ascii, correctness, ascii_reg, is_correct_reg, text_count, text_ready, pix_x, pix_y, block_x_reg, block_y_reg, text_width_reg, text_pixel_mask, y_increment, frame_update, stop, off_screen)
-      variable pix_x_int: integer range 0 to SCREEN_WIDTH_MAX;
-      variable pix_y_int: integer range 0 to SCREEN_HEIGHT_MAX;
+      variable int_pix_x: integer range 0 to SCREEN_WIDTH_MAX;
+      variable int_pix_y: integer range 0 to SCREEN_HEIGHT_MAX;
       variable var_pix_en: std_logic;
    begin
       state_next <= state_reg;
@@ -148,9 +148,13 @@ begin
       case state_reg is
          when IDLE =>
             if (start = '1') then
+               -- latch inputs
                block_x_next  <= to_integer(unsigned(x));
                ascii_next <= ascii;
                is_correct_next <= correctness;
+               -- start drawing at the top
+               block_y_next <= 0;
+               -- go render the text
                state_next <= ASCII_START;
             end if;
 
@@ -167,23 +171,23 @@ begin
             end if;
 
          when DRAW =>
-            pix_x_int := to_integer(unsigned(pix_x));
-            pix_y_int := to_integer(unsigned(pix_y));
+            int_pix_x := to_integer(unsigned(pix_x));
+            int_pix_y := to_integer(unsigned(pix_y));
             var_pix_en := '0';
 
             -- draw out the border as it comes up
-            if (pix_y_int >= block_y_reg and pix_y_int <= block_y_reg+MATH_BLOCK_HEIGHT-1) then
-               if (pix_x_int = block_x_reg) then                         -- left border
+            if (int_pix_y >= block_y_reg and int_pix_y <= block_y_reg+MATH_BLOCK_HEIGHT-1) then
+               if (int_pix_x = block_x_reg) then                         -- left border
                   var_pix_en := '1';
                end if;
-               if (pix_x_int = block_x_reg+text_width_reg+5-1) then      -- right border
+               if (int_pix_x = block_x_reg+text_width_reg+5-1) then      -- right border
                   var_pix_en := '1';
                end if;
-               if (pix_x_int > block_x_reg and pix_x_int < block_x_reg+text_width_reg+5) then
-                   if (pix_y_int = block_y_reg) then                     -- top border
+               if (int_pix_x > block_x_reg and int_pix_x < block_x_reg+text_width_reg+5) then
+                   if (int_pix_y = block_y_reg) then                     -- top border
                       var_pix_en := '1';
                    end if;
-                   if (pix_y_int = block_y_reg+MATH_BLOCK_HEIGHT-1) then -- bottom border
+                   if (int_pix_y = block_y_reg+MATH_BLOCK_HEIGHT-1) then -- bottom border
                       var_pix_en := '1';
                    end if;
                end if;
@@ -200,9 +204,9 @@ begin
             -- draw out the text pixels
             -- checks if the pixel mask is '1' for the current pix_x and pix_y
             for row in 0 to TEXT_BLOCK_HEIGHT-1 loop
-               if (pix_y_int = block_y_reg+3+row) then -- in the text row
-                  if (pix_x_int > block_x_reg+2 and pix_x_int < block_x_reg+text_width_reg+3) then -- in the text block
-                     var_pix_en := text_pixel_mask(TEXT_BLOCK_WIDTH*row + pix_x_int-block_x_reg-3);
+               if (int_pix_y = block_y_reg+3+row) then -- in the text row
+                  if (int_pix_x > block_x_reg+2 and int_pix_x < block_x_reg+text_width_reg+3) then -- in the text block
+                     var_pix_en := text_pixel_mask(TEXT_BLOCK_WIDTH*row + int_pix_x-block_x_reg-3);
                   end if;
                end if;
             end loop;
