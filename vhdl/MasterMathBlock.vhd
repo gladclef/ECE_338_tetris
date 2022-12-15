@@ -156,6 +156,7 @@ begin
       variable rand_t3  : std_logic_vector(1 downto 0);
       variable rand_127 : std_logic_vector(6 downto 0);
       variable rand_511 : std_logic_vector(8 downto 0);
+      variable int_rand_511 : integer range 0 to 511;
       variable v  : integer range 0 to 99;
       variable v1 : integer range 0 to 99;
       variable v2 : integer range 0 to 99;
@@ -188,6 +189,7 @@ begin
 
       rand_127 := randval(6 downto 0);
       rand_511 := randval(8 downto 0);
+      int_rand_511 := to_integer(unsigned(rand_511));
 
       case state_reg is
          when IDLE =>
@@ -205,7 +207,7 @@ begin
                else
                   -- create a new math block on a random time interval
                   read_rand <= '1';
-                  if (rand_511 = "001111000") then -- average 2 seconds at 60 fps
+                  if (int_rand_511 mod 120 = 0) then -- average 2 seconds at 60 fps
                      create_new := '1';
                   end if;
                end if;
@@ -450,6 +452,13 @@ begin
             state_next <= COUNT_ACTIVE;
 
          when COUNT_ACTIVE =>
+            -- Deassert start for all math blocks.
+            -- If we don't do this, then the math blocks will loop forever
+            -- between IDLE and DRAW once they are offscreen.
+            for i in 0 to NUM_MB loop
+               starts_next(first_ready_reg) <= '0';
+            end loop;
+
             -- count MB(i) as active if ready
             i_next <= i_reg + 1;
             if readys(i_reg) = '1' then
