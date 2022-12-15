@@ -12,6 +12,7 @@ entity ScoreAndLives is
       pix_x: in std_logic_vector(10 downto 0);
       pix_y: in std_logic_vector(9 downto 0);
       life: in std_logic_vector(1 downto 0);
+      score: in std_logic_vector(1 downto 0);
       pix_LivesScore_en : out std_logic;
       color: out std_logic_vector(23 downto 0)
    );
