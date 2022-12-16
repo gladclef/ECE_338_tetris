@@ -44,7 +44,8 @@ entity Controls is
       up:                out std_logic;
       down:              out std_logic;
       left:              out std_logic;
-      right:             out std_logic
+      right:             out std_logic;
+      bullet_shoot:      out std_logic
    );
 end Controls;
 
@@ -79,6 +80,7 @@ begin
    ctrl_right  <= ctrl_buttons(0) AND active_controller;
    ctrl_joysel <= ctrl_buttons(4) AND active_controller;
 
+   -- Ben Bean
    -- interpret horizontal values
    process (ctrl_horizontal, active_controller, ctrl_hor_val)
       variable hor_val: signed(ROCKET_MAX_MOVE_RATE_NB downto 0);
@@ -99,12 +101,12 @@ begin
          ctrl_hor_val <= ROCKET_MAX_MOVE_RATE;
       end if; 
         
-      -- Rachel Cazzola  
+      -- Rachel Cazzola
       if (active_controller = '0') then -- switch that controls whether we use the board or controller as our controls
          ctrl_hor_val <= 0; 
       end if;    
       
-       x_next <= ctrl_hor_val;  
+       x_next <= ctrl_hor_val;
    end process;
  
    -- Ben Bean & Rachel Cazzola
@@ -119,5 +121,6 @@ begin
             ctrl_left or zybo_button_left;
    right <= '1' when (ctrl_hor_val > 0) else
             ctrl_right or zybo_button_right;
+   bullet_shoot <= up or down or bullet_button;
 
 end rtl;
