@@ -195,31 +195,31 @@ begin
                    end if;
                end if;
 
-               if draw_correct = '1' then
-                  if (var_pix_en = '1') then
+               if (var_pix_en = '1') then
+                  if draw_correct = '1' then
                      if (is_correct_reg = '1') then
                         color <= COLOR_GREEN;
                      else
                         color <= COLOR_RED;
                      end if;
-                  end if;
-               else
-                  if color_reg    = "000" then
-                     color <= COLOR_RED;
-                  elsif color_reg = "001" then
-                     color <= COLOR_GREEN;
-                  elsif color_reg = "010" then
-                     color <= COLOR_BLUE;
-                  elsif color_reg = "011" then
-                     color <= COLOR_PINK;
-                  elsif color_reg = "100" then
-                     color <= COLOR_PURPLE;
-                  elsif color_reg = "101" then
-                     color <= COLOR_TEAL;
-                  elsif color_reg = "110" then
-                     color <= COLOR_ORANGE;
-                  elsif color_reg = "111" then
-                     color <= COLOR_YELLOW;
+                  else
+                     if color_reg    = "000" then
+                        color <= COLOR_RED;
+                     elsif color_reg = "001" then
+                        color <= COLOR_GREEN;
+                     elsif color_reg = "010" then
+                        color <= COLOR_BLUE;
+                     elsif color_reg = "011" then
+                        color <= COLOR_PINK;
+                     elsif color_reg = "100" then
+                        color <= COLOR_PURPLE;
+                     elsif color_reg = "101" then
+                        color <= COLOR_TEAL;
+                     elsif color_reg = "110" then
+                        color <= COLOR_ORANGE;
+                     elsif color_reg = "111" then
+                        color <= COLOR_YELLOW;
+                     end if;
                   end if;
                end if;
             end if;
