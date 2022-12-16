@@ -20,12 +20,16 @@ package DataTypes_pkg is
    CONSTANT SCREEN_HEIGHT_MAX : integer := 2**SCREEN_HEIGHT_NB; -- 512 = 2^SCREEN_HEIGHT_NB
    CONSTANT SCREEN_ADDR_NB : integer := 19; -- 640x480=307200, log(307200)=19
 
-   CONSTANT COLOR_BLACK : std_logic_vector(23 downto 0) := (others => '0');
-   CONSTANT COLOR_WHITE : std_logic_vector(23 downto 0) := (others => '1');
-   CONSTANT COLOR_RED   : std_logic_vector(23 downto 0) := std_logic_vector(to_unsigned( 255*65536 + 0*256   + 0,   24 ));
-   CONSTANT COLOR_GREEN : std_logic_vector(23 downto 0) := std_logic_vector(to_unsigned( 0*65536   + 0*256   + 255, 24 ));
-   CONSTANT COLOR_BLUE  : std_logic_vector(23 downto 0) := std_logic_vector(to_unsigned( 0*65536   + 255*256 + 0,   24 ));
-   CONSTANT COLOR_PURPLE : std_logic_vector(23 downto 0) := std_logic_vector(to_unsigned( 255*65536 + 255*256 + 0,  24 ));
+   CONSTANT COLOR_BLACK  : std_logic_vector(23 downto 0) := (others => '0');
+   CONSTANT COLOR_WHITE  : std_logic_vector(23 downto 0) := (others => '1');
+   CONSTANT COLOR_RED    : std_logic_vector(23 downto 0) := std_logic_vector(to_unsigned( 255*65536 +   0 +   0*256, 24 ));
+   CONSTANT COLOR_GREEN  : std_logic_vector(23 downto 0) := std_logic_vector(to_unsigned(   0*65536 + 255 +   0*256, 24 ));
+   CONSTANT COLOR_BLUE   : std_logic_vector(23 downto 0) := std_logic_vector(to_unsigned(   0*65536 +   0 + 255*256, 24 ));
+   CONSTANT COLOR_PINK   : std_logic_vector(23 downto 0) := std_logic_vector(to_unsigned( 255*65536 +   0 + 255*256, 24 ));
+   CONSTANT COLOR_PURPLE : std_logic_vector(23 downto 0) := std_logic_vector(to_unsigned( 119*65536 +  13 + 129*256, 24 ));
+   CONSTANT COLOR_TEAL   : std_logic_vector(23 downto 0) := std_logic_vector(to_unsigned(  50*65536 + 255 + 255*256, 24 ));
+   CONSTANT COLOR_ORANGE : std_logic_vector(23 downto 0) := std_logic_vector(to_unsigned( 255*65536 + 150 +   0*256, 24 ));
+   CONSTANT COLOR_YELLOW : std_logic_vector(23 downto 0) := std_logic_vector(to_unsigned( 255*65536 + 255 +   0*256, 24 ));
 
    CONSTANT MATH_BLOCK_MAX_CHARS_NB : integer := 4;
    CONSTANT MATH_BLOCK_MAX_CHARS : integer := 8;

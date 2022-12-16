@@ -1,3 +1,4 @@
+-- Ben Bean
 -----------------------------------------------------------
 -- Company: University of New Mexico
 -- Engineer: Rachel Cazzola, Benjamin Bean
@@ -44,10 +45,12 @@ entity MathBlock is
       start:         in std_logic;
       stop:          in std_logic;
       ready:         out std_logic;
+      color_choice:  in std_logic_vector(2 downto 0);
 
       -- correctness
       correctness:   in std_logic;
       is_correct:    out std_logic;
+      draw_correct:  in std_logic;
 
       -- where to place the block, and what it should display
       x:             in std_logic_vector(SCREEN_WIDTH_NB-1 downto 0);
@@ -83,6 +86,7 @@ architecture rtl of MathBlock is
    -- latched values when start gets asserted
    signal ascii_reg, ascii_next: std_logic_vector(MATH_BLOCK_MAX_CHARS*ASCII_NB-1 downto 0);
    signal is_correct_reg, is_correct_next: std_logic;
+   signal color_reg, color_next: std_logic_vector(2 downto 0);
 
    -- signals to and from the RenderText module
    --   render_start:    starts the RenderText module
@@ -102,18 +106,20 @@ begin
    process(clk, reset)
    begin
       if (reset = '1') then
-         state_reg <= IDLE;
-         block_x_reg <= 0;
-         block_y_reg <= 0;
-         ascii_reg <= (others => '0');
+         state_reg      <= IDLE;
+         block_x_reg    <= 0;
+         block_y_reg    <= 0;
+         ascii_reg      <= (others => '0');
          is_correct_reg <= '0';
+         color_reg      <= (others => '0');
          text_width_reg <= 0;
       elsif (rising_edge(clk)) then
-         state_reg <= state_next;
-         block_x_reg <= block_x_next;
-         block_y_reg <= block_y_next;
-         ascii_reg <= ascii_next;
+         state_reg      <= state_next;
+         block_x_reg    <= block_x_next;
+         block_y_reg    <= block_y_next;
+         ascii_reg      <= ascii_next;
          is_correct_reg <= is_correct_next;
+         color_reg      <= color_next;
          text_width_reg <= text_width_next;
       end if;
    end process;
@@ -122,19 +128,20 @@ begin
    ready <= '1' when state_reg = IDLE else '0';
 
    -- combinational circuit
-   process(state_reg, reset, start, x, ascii, correctness, ascii_reg, is_correct_reg, text_count, text_ready, pix_x, pix_y, block_x_reg, block_y_reg, text_width_reg, text_pixel_mask, y_increment, frame_update, stop, off_screen)
+   process(state_reg, reset, start, x, ascii, correctness, ascii_reg, is_correct_reg, color_reg, text_count, text_ready, pix_x, pix_y, block_x_reg, block_y_reg, text_width_reg, text_pixel_mask, y_increment, frame_update, stop, off_screen)
       variable int_pix_x: integer range 0 to SCREEN_WIDTH_MAX-1;
       variable int_pix_y: integer range 0 to SCREEN_HEIGHT_MAX-1;
       variable var_pix_en: std_logic;
    begin
-      state_next <= state_reg;
-      block_x_next <= block_x_reg;
-      block_y_next <= block_y_reg;
-      ascii_next <= ascii_reg;
+      state_next      <= state_reg;
+      block_x_next    <= block_x_reg;
+      block_y_next    <= block_y_reg;
+      ascii_next      <= ascii_reg;
       is_correct_next <= is_correct_reg;
+      color_next      <= color_reg;
       text_width_next <= text_width_reg;
-      render_start <= '0';
-      pix_mb_en <= '0';
+      render_start    <= '0';
+      pix_mb_en       <= '0';
 
       color <= COLOR_WHITE;
 
@@ -142,11 +149,14 @@ begin
          when IDLE =>
             if (start = '1') then
                -- latch inputs
-               block_x_next  <= to_integer(unsigned(x));
-               ascii_next <= ascii;
+               block_x_next    <= to_integer(unsigned(x));
+               ascii_next      <= ascii;
                is_correct_next <= correctness;
+               color_next      <= color_choice;
+
                -- start drawing at the top
                block_y_next <= 0;
+
                -- go render the text
                state_next <= ASCII_START;
             end if;
@@ -185,11 +195,31 @@ begin
                    end if;
                end if;
 
-               if (var_pix_en = '1') then
-                  if (is_correct_reg = '1') then
-                     color <= COLOR_GREEN;
-                  else
+               if draw_correct = '1' then
+                  if (var_pix_en = '1') then
+                     if (is_correct_reg = '1') then
+                        color <= COLOR_GREEN;
+                     else
+                        color <= COLOR_RED;
+                     end if;
+                  end if;
+               else
+                  if color_reg    = "000" then
                      color <= COLOR_RED;
+                  elsif color_reg = "001" then
+                     color <= COLOR_GREEN;
+                  elsif color_reg = "010" then
+                     color <= COLOR_BLUE;
+                  elsif color_reg = "011" then
+                     color <= COLOR_PINK;
+                  elsif color_reg = "100" then
+                     color <= COLOR_PURPLE;
+                  elsif color_reg = "101" then
+                     color <= COLOR_TEAL;
+                  elsif color_reg = "110" then
+                     color <= COLOR_ORANGE;
+                  elsif color_reg = "111" then
+                     color <= COLOR_YELLOW;
                   end if;
                end if;
             end if;

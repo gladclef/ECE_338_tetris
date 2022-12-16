@@ -33,19 +33,21 @@ use work.DataTypes_pkg.all;
 -- Ben Bean
 entity Controls is
    Port (
-      reset, clk:        in std_logic;
-      zybo_button_left:  in std_logic;
-      zybo_button_right: in std_logic;
-      ctrl_buttons:      in std_logic_vector(4 downto 0);
-      ctrl_horizontal:   in std_logic_vector(7 downto 0);
-      active_controller: in std_logic;
-      bullet_button:     in std_logic;
-      x_increment:       out std_logic_vector(ROCKET_MAX_MOVE_RATE_NB downto 0); -- signed, include an extra bit for negatives
-      up:                out std_logic;
-      down:              out std_logic;
-      left:              out std_logic;
-      right:             out std_logic;
-      bullet_shoot:      out std_logic
+      reset, clk:          in std_logic;
+      zybo_button_left:    in std_logic;
+      zybo_button_right:   in std_logic;
+      ctrl_buttons:        in std_logic_vector(4 downto 0);
+      ctrl_horizontal:     in std_logic_vector(7 downto 0);
+      active_controller:   in std_logic;
+      bullet_button:       in std_logic;
+      x_increment:         out std_logic_vector(ROCKET_MAX_MOVE_RATE_NB downto 0); -- signed, include an extra bit for negatives
+      up:                  out std_logic;
+      down:                out std_logic;
+      left:                out std_logic;
+      right:               out std_logic;
+      bullet_shoot:        out std_logic;
+      draw_correct_switch: in std_logic;
+      draw_correct:        out std_logic
    );
 end Controls;
 
@@ -121,6 +123,7 @@ begin
             ctrl_left or zybo_button_left;
    right <= '1' when (ctrl_hor_val > 0) else
             ctrl_right or zybo_button_right;
-   bullet_shoot <= up or down or bullet_button;
+   bullet_shoot <= ctrl_up or ctrl_down or bullet_button;
+   draw_correct <= draw_correct_switch;
 
 end rtl;

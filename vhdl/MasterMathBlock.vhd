@@ -63,17 +63,19 @@ entity MasterMathBlock is
       bullet_active:  in  std_logic;
       score_increase: out std_logic;
       life_decrease:  out std_logic;
-      bullet_stop:    out std_logic
+      bullet_stop:    out std_logic;
+      draw_correct:   in  std_logic
    );
 end MasterMathBlock;
 
 architecture rtl of MasterMathBlock is
-   type state_type is (IDLE, CHECK_COLLISION, COUNT_ACTIVE, GEN_FIRST, GEN_SECOND, GEN_OP, GEN_RESULT, GEN_INCORRECT, GEN_ASCII, ACTIVATE_BLOCK);
+   type state_type is (IDLE, CHECK_COLLISION, COUNT_ACTIVE, GEN_FIRST, GEN_SECOND, GEN_OP, GEN_RESULT, GEN_INCORRECT, GEN_ASCII, GEN_COLOR, ACTIVATE_BLOCK);
    signal state_reg, state_next: state_type;
 
    -- Arrays of values, one value per math block
    constant NUM_MB : integer := 4;
    type std_logic_array  is array(0 to NUM_MB-1) of std_logic;
+   type vectorClrChArray is array(0 to NUM_MB-1) of std_logic_vector(2 downto 0);
    type vectorX_Array    is array(0 to NUM_MB-1) of std_logic_vector(SCREEN_WIDTH_NB-1 downto 0);
    type vectorAsciiArray is array(0 to NUM_MB-1) of std_logic_vector(MATH_BLOCK_MAX_CHARS*ASCII_NB-1 downto 0);
    type vectorPosArray   is array(0 to NUM_MB-1) of std_logic_vector(SCREEN_HEIGHT_NB-1 downto 0);
@@ -82,6 +84,7 @@ architecture rtl of MasterMathBlock is
    signal readys : std_logic_array;
    signal starts_reg, starts_next : std_logic_array;
    signal stops_reg, stops_next : std_logic_array;
+   signal color_choices_reg, color_choices_next: vectorClrChArray;
    signal xs_reg, xs_next : vectorX_Array;
    signal asciis_reg, asciis_next : vectorAsciiArray;
    signal y_poss: vectorPosArray;
@@ -126,7 +129,8 @@ begin
             stops_reg(i)   <= '0';
             xs_reg(i)      <= (others => '0');
             asciis_reg(i)  <= (others => '0');
-            set_correct_reg(i) <= '0';
+            color_choices_reg(i) <= (others => '0');
+            set_correct_reg(i)   <= '0';
          end loop;
          n_interframes_reg <= 0;
          n_correct_reg     <= 0;
@@ -146,7 +150,8 @@ begin
             stops_reg(i)   <= stops_next(i);
             xs_reg(i)      <= xs_next(i);
             asciis_reg(i)  <= asciis_next(i);
-            set_correct_reg(i) <= set_correct_next(i);
+            color_choices_reg(i) <= color_choices_next(i);
+            set_correct_reg(i)   <= set_correct_next(i);
          end loop;
          n_interframes_reg <= n_interframes_next;
          n_correct_reg     <= n_correct_next;
@@ -163,12 +168,13 @@ begin
    end process;
 
    -- combinational circuit
-   process(state_reg, starts_reg, stops_reg, xs_reg, asciis_reg, y_poss, widths, get_correct, set_correct_reg, pix_y, frame_update, rocket_mid_x, bullet_x, bullet_y, bullet_active, n_interframes_reg, n_correct_reg, n_incorrect_reg, gen_first_reg, gen_second_reg, gen_op_reg, gen_result_reg, gen_num_reg, gen_ascii_reg, first_ready_reg, i_reg, randval, readys)
+   process(state_reg, starts_reg, stops_reg, xs_reg, asciis_reg, y_poss, widths, get_correct, color_choices_reg, set_correct_reg, pix_y, frame_update, rocket_mid_x, bullet_x, bullet_y, bullet_active, n_interframes_reg, n_correct_reg, n_incorrect_reg, gen_first_reg, gen_second_reg, gen_op_reg, gen_result_reg, gen_num_reg, gen_ascii_reg, first_ready_reg, i_reg, randval, readys)
       variable create_new : std_logic;
       variable create_correct : std_logic;
       variable rand_t3  : std_logic_vector(1 downto 0);
       variable rand_127 : std_logic_vector(6 downto 0);
       variable rand_511 : std_logic_vector(8 downto 0);
+      variable int_rand_127 : integer range 0 to 127;
       variable int_rand_511 : integer range 0 to 511;
       variable v  : integer range 0 to 99;
       variable v1 : integer range 0 to 99;
@@ -190,7 +196,8 @@ begin
          stops_next(i)   <= stops_reg(i);
          xs_next(i)      <= xs_reg(i);
          asciis_next(i)  <= asciis_reg(i);
-         set_correct_next(i) <= set_correct_reg(i);
+         color_choices_next(i) <= color_choices_reg(i);
+         set_correct_next(i)   <= set_correct_reg(i);
       end loop;
       n_interframes_next <= n_interframes_reg;
       n_correct_next     <= n_correct_reg;
@@ -211,6 +218,7 @@ begin
 
       rand_127 := randval(6 downto 0);
       rand_511 := randval(8 downto 0);
+      int_rand_127 := to_integer(unsigned(rand_127));
       int_rand_511 := to_integer(unsigned(rand_511));
 
       case state_reg is
@@ -555,8 +563,12 @@ begin
             end if;
 
             if (i_reg = 6) then
-               state_next <= ACTIVATE_BLOCK;
+               state_next <= GEN_COLOR;
             end if;
+
+         when GEN_COLOR =>
+            color_choices_next(first_ready_reg) <= int_rand_127 mod 8;
+            read_rand <= '1';
 
          when ACTIVATE_BLOCK =>
             -- set up and enable the block
