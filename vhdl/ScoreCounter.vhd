@@ -47,7 +47,10 @@ begin
    process(score_increase, score_digit0_reg, score_digit1_reg, score_reg, decrease_life)
    
    begin
-         
+      
+      score_next <= score_reg;
+      life_next <= life_reg;   
+      
       if (score_increase = '1') then
         score_next <= score_reg+1;
       end if;
