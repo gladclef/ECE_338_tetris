@@ -54,8 +54,8 @@ architecture rtl of Bullet is
       end if;
    end process;
    
-   off_screen <= '1' when (bullet_y_reg <= BULLET_SPEED and frame_update = '1') else '0';
-   color <= COLOR_BLUE;
+   off_screen <= '1' when (bullet_y_reg <= BULLET_SPEED) else '0';
+   color <= COLOR_PURPLE;
 
    -- Ben Bean
    active <= '0' when (state_reg = IDLE) else '1';
@@ -77,12 +77,11 @@ architecture rtl of Bullet is
       draw_addr_next <= draw_addr_reg;
       pix_bullet_en <= '0';
 
-      --use that x_mid value to set the bullet position when it gets created (aka when it goes from the idle to active states)
       case state_reg is
          when IDLE =>
             -- state logic
             if (bullet_button = '1') then
-               bullet_x_next  <= to_integer(unsigned(x_mid_start)); -- x_mid_start := std_logic_vector(to_unsigned(x_reg + ROCKET_WIDTH/2,x_mid'length));
+               bullet_x_next  <= to_integer(unsigned(x_mid_start));
                bullet_y_next <= BULLET_Y_START;
                state_next <= DRAW;
             end if;
@@ -104,7 +103,6 @@ architecture rtl of Bullet is
                 if (pix_y_int >= bullet_y_reg and pix_y_int < bullet_y_reg + BULLET_HEIGHT) then
                     if (pix_x_int >= bullet_x_reg and pix_x_int < bullet_x_reg+BULLET_WIDTH) then
                         pix_bullet_en <= rbits(draw_addr_reg);
-                        --color <= COLOR_BLUE;
                         if (draw_addr_reg /= BULLET_ADDR_MAX) then
                             draw_addr_next <= draw_addr_reg + 1;
                         end if;
@@ -115,8 +113,6 @@ architecture rtl of Bullet is
             if (frame_update = '1') then
                state_next <= INTER_FRAME;
             elsif (stop = '1') then
-               state_next <= IDLE;
-            elsif (off_screen = '1') then
                state_next <= IDLE;
             end if;
 

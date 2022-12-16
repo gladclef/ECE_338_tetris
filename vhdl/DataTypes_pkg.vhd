@@ -37,6 +37,7 @@ package DataTypes_pkg is
    CONSTANT COLOR_RED   : std_logic_vector(23 downto 0) := std_logic_vector(to_unsigned( 255*65536 + 0*256   + 0,   24 ));
    CONSTANT COLOR_GREEN : std_logic_vector(23 downto 0) := std_logic_vector(to_unsigned( 0*65536   + 0*256   + 255, 24 ));
    CONSTANT COLOR_BLUE  : std_logic_vector(23 downto 0) := std_logic_vector(to_unsigned( 0*65536   + 255*256 + 0,   24 ));
+   CONSTANT COLOR_PURPLE : std_logic_vector(23 downto 0) := std_logic_vector(to_unsigned( 255*65536 + 255*256 + 0,  24 ));
 
    CONSTANT MATH_BLOCK_MAX_CHARS_NB : integer := 4;
    CONSTANT MATH_BLOCK_MAX_CHARS : integer := 8;
