@@ -91,7 +91,6 @@ architecture rtl of Bullet is
                 if (pix_y_int >= bullet_y_reg and pix_y_int < bullet_y_reg + BULLET_HEIGHT) then
                     if (pix_x_int >= bullet_x_reg and pix_x_int < bullet_x_reg+BULLET_WIDTH) then        
                         pix_bullet_en <= rbits(draw_addr_reg);
-                        --color <= COLOR_BLUE;
                         if (draw_addr_reg /= BULLET_ADDR_MAX) then
                             draw_addr_next <= draw_addr_reg + 1;
                         end if;

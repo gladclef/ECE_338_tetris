@@ -116,7 +116,7 @@ begin
                if (pix_x_int = block_x_reg) then                         -- left border
                   pix_LivesScore_en <= '1';
                end if;
-               if (pix_x_int = block_x_reg + score_text_width_reg+5-1) then      -- right border
+               if (pix_x_int = block_x_reg + score_text_width_reg+5-1) then     -- right border
                   pix_LivesScore_en <= '1';
                end if;
                if (pix_x_int > block_x_reg and pix_x_int < block_x_reg + score_text_width_reg+5) then
