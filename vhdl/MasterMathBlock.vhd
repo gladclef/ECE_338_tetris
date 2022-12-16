@@ -62,7 +62,8 @@ entity MasterMathBlock is
       bullet_y:       in  std_logic_vector(SCREEN_HEIGHT_NB-1 downto 0);
       bullet_active:  in  std_logic;
       score_increase: out std_logic;
-      life_decrease:  out std_logic
+      life_decrease:  out std_logic;
+      bullet_stop:    out std_logic
       
       -- Rachel Cazzola
    );
@@ -216,6 +217,14 @@ begin
 
       case state_reg is
          when IDLE =>
+            -- either (A) check for collisions or (B) maybe create a new block
+
+            -- (A) check for collisions
+            if (pix_y = std_logic_vector(to_unsigned( 0, pix_y'length ))) then
+               state_next <= CHECK_COLLISION;
+            end if;
+
+            -- (B) maybe draw a new block
             if (frame_update = '1') then
                create_new := '0';
 
@@ -240,21 +249,14 @@ begin
                   end if;
                end if;
 
-               -- Every clock cycle do something. If not (A) then (B).
-               --   (A) create a new math block
-               --   (B) check for a collision
                if (create_new = '1') then
                   -- get ready for the next state
                   i_next <= 0;
                   first_ready_next <= NUM_MB;
-                  
-                  -- (A) go check if we have math blocks available
+                  -- go check if we have math blocks available
                   state_next <= COUNT_ACTIVE;
                else
                   n_interframes_next <= n_interframes_reg + 1;
-
-                  -- (B) go check for a collision
-                  state_next <= CHECK_COLLISION;
                end if;
             end if;
 
@@ -307,6 +309,8 @@ begin
                end if; -- bullet_active
 
             end loop;
+
+            state_next <= IDLE;
 
          when COUNT_ACTIVE =>
             if (i_reg < NUM_MB) then
@@ -636,7 +640,6 @@ begin
 
       pix_en <= pix_en_any;
       color  <= var_color;
-      score_increase <= '0';
         
    end process;
    
