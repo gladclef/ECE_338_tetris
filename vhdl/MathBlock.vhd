@@ -128,7 +128,7 @@ begin
    ready <= '1' when state_reg = IDLE else '0';
 
    -- combinational circuit
-   process(state_reg, reset, start, x, ascii, correctness, ascii_reg, is_correct_reg, color_reg, text_count, text_ready, pix_x, pix_y, block_x_reg, block_y_reg, text_width_reg, text_pixel_mask, y_increment, frame_update, stop, off_screen)
+   process(state_reg, reset, start, x, ascii, correctness, color_choice, draw_correct, ascii_reg, is_correct_reg, color_reg, text_count, text_ready, pix_x, pix_y, block_x_reg, block_y_reg, text_width_reg, text_pixel_mask, y_increment, frame_update, stop, off_screen)
       variable int_pix_x: integer range 0 to SCREEN_WIDTH_MAX-1;
       variable int_pix_y: integer range 0 to SCREEN_HEIGHT_MAX-1;
       variable var_pix_en: std_logic;

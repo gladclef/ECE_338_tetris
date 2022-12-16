@@ -567,7 +567,7 @@ begin
             end if;
 
          when GEN_COLOR =>
-            color_choices_next(first_ready_reg) <= int_rand_127 mod 8;
+            color_choices_next(first_ready_reg) <= std_logic_vector(to_unsigned( int_rand_127 mod 8, 3 ));
             read_rand <= '1';
 
          when ACTIVATE_BLOCK =>
@@ -611,10 +611,12 @@ begin
          start        => starts_reg(i), -- in
          stop         => stops_reg(i),  -- in
          ready        => readys(i),     -- out
+         color_choice => color_choices_reg(i), -- in
 
          -- correctness
-         correctness  => set_correct_reg(i), -- in
-         is_correct   => get_correct(i),     -- out
+         correctness  => set_correct_reg(i),   -- in
+         is_correct   => get_correct(i),       -- out
+         draw_correct => draw_correct,         -- in
 
          -- where to place the block, and what it should display
          x            => xs_reg(i),     -- in
