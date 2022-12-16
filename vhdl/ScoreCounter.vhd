@@ -12,7 +12,8 @@ entity ScoreCounter is
         clk, reset: in std_logic;
         score_increase: in std_logic;
         decrease_life: in std_logic;
-        score_digit0, score_digit1 : out std_logic_vector(5 downto 0);
+        life_digit: out std_logic_vector(5 downto 0);
+        score_digit0, score_digit1: out std_logic_vector(5 downto 0);
         y_increment:  out std_logic_vector(MAX_FALL_RATE_NB-1 downto 0)
         );
 end ScoreCounter;
@@ -44,7 +45,7 @@ begin
    end process;      
    
    -- combinational circuit
-   process(score_increase, score_digit0_reg, score_digit1_reg, score_reg, decrease_life)
+   process(score_increase, score_digit0_reg, score_digit1_reg, score_reg, decrease_life, life_reg)
    
    begin
       
