@@ -11,6 +11,7 @@ entity ScoreCounter is
    Port (
         clk, reset: in std_logic;
         score_increase: in std_logic;
+        decrease_life: in std_logic;
         score_digit0, score_digit1 : out std_logic_vector(5 downto 0);
         y_increment:  out std_logic_vector(MAX_FALL_RATE_NB-1 downto 0)
         );
@@ -22,6 +23,7 @@ architecture rtl of ScoreCounter is
    signal score_digit0_reg, score_digit1_reg: std_logic_vector(5 downto 0);
    signal score_digit0_next, score_digit1_next: std_logic_vector(5 downto 0);
    signal score_reg, score_next: integer range 0 to 99;
+   signal life_reg, life_next: integer range 0 to 3;
    
 begin 
 
@@ -32,20 +34,26 @@ begin
         score_digit0_reg <= (others => '0');
         score_digit1_reg <= (others => '0');
         score_reg <= 13;
+        life_reg <= 0;
       elsif (rising_edge(clk)) then
          score_digit0_reg <= score_digit0_next;
          score_digit1_reg <= score_digit1_next;
          score_reg <= score_next;
+         life_reg <= life_next;
       end if;
    end process;      
    
    -- combinational circuit
-   process(score_increase, score_digit0_reg, score_digit1_reg, score_reg)
+   process(score_increase, score_digit0_reg, score_digit1_reg, score_reg, decrease_life)
    
    begin
          
       if (score_increase = '1') then
         score_next <= score_reg+1;
+      end if;
+      
+      if (decrease_life = '1') then
+        life_next <= life_reg-1;
       end if;
     end process;
       

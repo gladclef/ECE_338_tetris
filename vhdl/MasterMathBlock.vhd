@@ -55,6 +55,7 @@ entity MasterMathBlock is
       pix_en:       out std_logic;
       color:        out std_logic_vector(23 downto 0);
       
+      decrease_life: out std_logic;
       score_increase: out std_logic
    );
 end MasterMathBlock;
