@@ -1,18 +1,19 @@
--- Rachel Cazzola
 library IEEE;
 use IEEE.STD_LOGIC_1164.ALL;
+use IEEE.STD_LOGIC_SIGNED.ALL;
 use IEEE.NUMERIC_STD.ALL;
 
 library work;
 use work.DataTypes_pkg.all;
 
+-- Rachel Cazzola
 entity ScoreAndLives is
    Port (
       clk, reset, start, stop, frame_update: in std_logic;
       pix_x: in std_logic_vector(10 downto 0);
       pix_y: in std_logic_vector(9 downto 0);
       life: in std_logic_vector(1 downto 0);
-      score: in std_logic_vector(1 downto 0);
+      score_digit0, score_digit1 : in std_logic_vector(5 downto 0);
       pix_LivesScore_en : out std_logic;
       color: out std_logic_vector(23 downto 0)
    );
@@ -42,7 +43,7 @@ architecture rtl of ScoreAndLives is
    signal lives_text_pixel_mask, score_text_pixel_mask: std_logic_vector(0 to TEXT_BLOCK_ADDR-1); -- the pixels rendered to by RenderText, to be drawn to the screen
    signal lives_text_width_reg, lives_text_width_next, score_text_width_reg, score_text_width_next: integer range 0 to 1023; -- the number of bits that are occupied on the screen by the rendered text
    signal lives_text_count, score_text_count: std_logic_vector(MATH_BLOCK_MAX_CHARS_NB-1 downto 0); -- a count of how many characters are in the lives_reg
- 
+   
 begin 
 
    -- state and data register
@@ -52,9 +53,9 @@ begin
          state_reg <= IDLE;
          block_x_reg <= 0;
          block_y_reg <= SCREEN_HEIGHT-FULL_HEIGHT-1; -- -1 for 0 indexing of pix_y
-         lives_reg <= "000000"&"000000" & ASCII_CLN & ASCII_S & ASCII_E & ASCII_V & ASCII_I & ASCII_L;
+         lives_reg <= "000000" & ASCII_3 & ASCII_CLN & ASCII_S & ASCII_E & ASCII_V & ASCII_I & ASCII_L;
          lives_text_width_reg <= 0;
-         score_reg <= "000000"&"000000" & ASCII_CLN & ASCII_E & ASCII_R & ASCII_O & ASCII_C & ASCII_S; 
+         score_reg <= score_digit1 & score_digit0 & ASCII_CLN & ASCII_E & ASCII_R & ASCII_O & ASCII_C & ASCII_S; 
          score_text_width_reg <= 0;
          
       elsif (rising_edge(clk)) then
@@ -71,7 +72,7 @@ begin
    color <= COLOR_WHITE;
 
    -- combinational circuit
-   process(state_reg, reset, start, lives_reg, score_reg, lives_text_count, score_text_count, lives_text_ready, score_text_ready, pix_x, pix_y, block_x_reg, block_y_reg, lives_text_width_reg, score_text_width_reg, lives_text_pixel_mask, score_text_pixel_mask, frame_update, stop)
+   process(state_reg, reset, start, lives_reg, score_reg, lives_text_count, score_text_count, lives_text_ready, score_text_ready, pix_x, pix_y, block_x_reg, block_y_reg, lives_text_width_reg, score_text_width_reg, lives_text_pixel_mask, score_text_pixel_mask, frame_update, stop, score_digit0, score_digit1)
       variable pix_x_int: integer range 0 to SCREEN_WIDTH_MAX;
       variable pix_y_int: integer range 0 to SCREEN_HEIGHT_MAX;
    begin
@@ -85,7 +86,7 @@ begin
       lives_render_start <= '0';
       score_render_start <= '0';
       pix_LivesScore_en <= '0';
-
+           
       case state_reg is
          when IDLE =>
             if (start = '1') then
@@ -185,6 +186,5 @@ begin
       pixels => score_text_pixel_mask,
       ready  => score_text_ready
    );
-
 
 end rtl;

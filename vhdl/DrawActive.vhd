@@ -48,6 +48,7 @@ entity DrawActive is
       math_block_color: in std_logic_vector(23 downto 0);
       livesAndScoreColor: in std_logic_vector(23 downto 0);
       livesAndScore_en: in std_logic;
+      life: out std_logic_vector(1 downto 0);
       bullet_en: in std_logic;
       bullet_color: in std_logic_vector(23 downto 0);
       color_out: out std_logic_vector(23 downto 0)

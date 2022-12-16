@@ -53,7 +53,9 @@ entity MasterMathBlock is
 
       -- is pix_x/pix_y a math block pixel? if so, what color should be drawn?
       pix_en:       out std_logic;
-      color:        out std_logic_vector(23 downto 0)
+      color:        out std_logic_vector(23 downto 0);
+      
+      score_increase: out std_logic
    );
 end MasterMathBlock;
 
@@ -147,7 +149,7 @@ begin
    end process;
 
    -- combinational circuit
-   process(state_reg, counter_reg, starts_reg, xs_reg, asciis_reg, set_correct_reg, frame_update, n_interframes_reg, n_correct_reg, n_incorrect_reg, gen_first_reg, gen_second_reg, gen_op_reg, gen_result_reg, gen_num_reg, gen_ascii_reg, first_ready_reg, i_reg, randval, readys)
+   process(state_reg, starts_reg, xs_reg, asciis_reg, set_correct_reg, frame_update, n_interframes_reg, n_correct_reg, n_incorrect_reg, gen_first_reg, gen_second_reg, gen_op_reg, gen_result_reg, gen_num_reg, gen_ascii_reg, first_ready_reg, i_reg, randval, readys)
       variable create_new : std_logic;
       variable create_correct : std_logic;
       variable rand_t3  : std_logic_vector(1 downto 0);
