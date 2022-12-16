@@ -52,6 +52,8 @@ use IEEE.NUMERIC_STD.ALL;
 library work;
 use work.DataTypes_pkg.all;
 
+
+-- Ben Bean
 entity RenderText is
    Port (
       reset:  in std_logic;
@@ -89,6 +91,7 @@ architecture rtl of RenderText is
    CONSTANT CHAR_DIV : std_logic_vector(0 to 14) := "001001010100100";
    CONSTANT CHAR_EQU : std_logic_vector(0 to 14) := "000011000011000";
    
+   -- Rachel Cazzola
    CONSTANT CHAR_L : std_logic_vector(0 to 14) := "100100100100111";
    CONSTANT CHAR_I : std_logic_vector(0 to 14) := "010010010010010";
    CONSTANT CHAR_V : std_logic_vector(0 to 14) := "101101101010010";
@@ -100,6 +103,7 @@ architecture rtl of RenderText is
    CONSTANT CHAR_O : std_logic_vector(0 to 14) := "111101101101111";
    CONSTANT CHAR_R : std_logic_vector(0 to 14) := "111101111101101";
 
+   -- Ben Bean
    -- Some constants, defined here so that compilation can happen at compile time instead of at runtime.
    -- These are used for indexing into the pixels output vector during the RENDER_CHAR state.
    CONSTANT ROW0 : integer := TEXT_BLOCK_WIDTH*0; 

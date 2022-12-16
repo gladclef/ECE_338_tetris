@@ -47,7 +47,7 @@ architecture rtl of Bullet is
       end if;
    end process;
    
-   off_screen <= '1' when (bullet_y_reg < 0) else '0';
+   off_screen <= '1' when (bullet_y_reg = 0) else '0';
    color <= COLOR_BLUE; 
    
    -- combinational circuit
