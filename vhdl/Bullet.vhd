@@ -96,6 +96,9 @@ architecture rtl of Bullet is
                      "1" &
                      "1" &
                      "1" &
+                     "1" &
+                     "1" &
+                     "1" &
                      "1";
 
             -- draw the bullet if within the borders of the current bullet position
