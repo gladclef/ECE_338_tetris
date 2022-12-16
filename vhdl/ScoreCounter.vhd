@@ -11,7 +11,8 @@ entity ScoreCounter is
    Port (
         clk, reset: in std_logic;
         score_increase: in std_logic;
-        score_digit0, score_digit1 : out std_logic_vector(5 downto 0)
+        score_digit0, score_digit1 : out std_logic_vector(5 downto 0);
+        y_increment:  out std_logic_vector(MAX_FALL_RATE_NB-1 downto 0)
         );
 end ScoreCounter;
 
@@ -28,9 +29,9 @@ begin
    process(clk, reset)
    begin
       if (reset = '1') then
-        score_digit0_reg <= ASCII_2;--(others => '0');
-        score_digit1_reg <= ASCII_1;--(others => '0');
-        score_reg <= 0;
+        score_digit0_reg <= (others => '0');
+        score_digit1_reg <= (others => '0');
+        score_reg <= 13;
       elsif (rising_edge(clk)) then
          score_digit0_reg <= score_digit0_next;
          score_digit1_reg <= score_digit1_next;
@@ -52,5 +53,6 @@ begin
       score_digit1 <= std_logic_vector(score_digit1_reg);
       score_digit0_next <= std_logic_vector(to_unsigned(48 + score_reg mod 10,ASCII_NB));
       score_digit1_next <= std_logic_vector(to_unsigned(48 + score_reg / 10,ASCII_NB)); 
+      y_increment <= std_logic_vector(to_unsigned( score_reg / 20 + 1, y_increment'length ));
             
 end rtl;        

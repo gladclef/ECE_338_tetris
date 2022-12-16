@@ -64,12 +64,11 @@ architecture rtl of Bullet is
       draw_addr_next <= draw_addr_reg;
       pix_bullet_en <= '0';
 
-      --use that x_mid value to set the bullet position when it gets created (aka when it goes from the idle to active states)
       case state_reg is
          when IDLE =>
             -- state logic
             if (bullet_button = '1') then
-               bullet_x_next  <= to_integer(unsigned(x_mid_start)); -- x_mid_start := std_logic_vector(to_unsigned(x_reg + ROCKET_WIDTH/2,x_mid'length));
+               bullet_x_next  <= to_integer(unsigned(x_mid_start));
                bullet_y_next <= BULLET_Y_START;
                state_next <= ACTIVE;  
             end if;
