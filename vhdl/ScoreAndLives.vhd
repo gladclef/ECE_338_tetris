@@ -12,7 +12,7 @@ entity ScoreAndLives is
       clk, reset, start, stop, frame_update: in std_logic;
       pix_x: in std_logic_vector(SCREEN_WIDTH_NB-1 downto 0);
       pix_y: in std_logic_vector(SCREEN_HEIGHT_NB-1 downto 0);
-      life: in std_logic_vector(1 downto 0);
+      life_digit: in std_logic_vector(5 downto 0);
       score_digit0, score_digit1 : in std_logic_vector(5 downto 0);
       pix_LivesScore_en : out std_logic;
       color: out std_logic_vector(23 downto 0)
@@ -158,6 +158,7 @@ begin
             -- single clock cycle frame intermission to increment the block_y_reg
             state_next <= ASCII_START;
             score_next <= score_digit1 & score_digit0 & ASCII_CLN & ASCII_E & ASCII_R & ASCII_O & ASCII_C & ASCII_S;
+            lives_next <= "000000" & life_digit & ASCII_CLN & ASCII_S & ASCII_E & ASCII_V & ASCII_I & ASCII_L;
 
             if (stop = '1') then
                state_next <= IDLE;
