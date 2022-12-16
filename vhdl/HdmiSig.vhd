@@ -48,6 +48,8 @@ architecture beh of hdmi_sig is
    signal hdmi_vsync_sig : std_logic;
    signal pixel_x : unsigned(SCREEN_WIDTH_NB-1 downto 0);
    signal pixel_y : unsigned(SCREEN_HEIGHT_NB-1 downto 0);
+   signal pixel_x_plus : unsigned(10 downto 0);
+   signal pixel_y_plus : unsigned(9 downto 0);
    signal prev_x_reg, prev_x_next : unsigned(SCREEN_WIDTH_NB-1 downto 0);
    signal pix_addr_reg, pix_addr_next : unsigned(SCREEN_ADDR_NB-1 downto 0);
 

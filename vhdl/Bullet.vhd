@@ -1,3 +1,4 @@
+-- Rachel Cazzola
 library IEEE;
 use IEEE.STD_LOGIC_1164.ALL;
 use IEEE.NUMERIC_STD.ALL;
@@ -5,7 +6,6 @@ use IEEE.NUMERIC_STD.ALL;
 library work;
 use work.DataTypes_pkg.all;
 
--- Rachel Cazzola
 entity Bullet is
    Port (
       reset, clk, start, stop: in std_logic;
@@ -16,12 +16,19 @@ entity Bullet is
       pix_x: in std_logic_vector(SCREEN_WIDTH_NB-1 downto 0);
       pix_y: in std_logic_vector(SCREEN_HEIGHT_NB-1 downto 0);
       pix_bullet_en: out std_logic;
-      color: out std_logic_vector(23 downto 0)
+      color: out std_logic_vector(23 downto 0);
+
+      -- Ben Bean
+      active: out std_logic;
+      x_pos:  out std_logic_vector(SCREEN_WIDTH_NB-1 downto 0);
+      y_pos:  out std_logic_vector(SCREEN_HEIGHT_NB-1 downto 0)
+
+      -- Rachel Cazzola
    );
 end Bullet;
 
 architecture rtl of Bullet is
-   type state_type is (IDLE, ACTIVE, INTER_FRAME);
+   type state_type is (IDLE, DRAW, INTER_FRAME);
    
    signal bullet_x_reg, bullet_x_next: integer range 0 to SCREEN_WIDTH_MAX-1;
    signal bullet_y_reg, bullet_y_next: integer range 0 to SCREEN_HEIGHT_MAX-1;
@@ -38,7 +45,7 @@ architecture rtl of Bullet is
          state_reg <= IDLE;
          bullet_x_reg <= 0;
          bullet_y_reg <= BULLET_Y_START; 
-         draw_addr_reg <= 0;               
+         draw_addr_reg <= 0;
       elsif (rising_edge(clk)) then
          state_reg <= state_next;
          bullet_x_reg <= bullet_x_next;
@@ -48,8 +55,14 @@ architecture rtl of Bullet is
    end process;
    
    off_screen <= '1' when (bullet_y_reg <= BULLET_SPEED and frame_update = '1') else '0';
-   color <= COLOR_BLUE; 
+   color <= COLOR_BLUE;
+
+   -- Ben Bean
+   active <= '0' when (state_reg = IDLE) else '1';
+   x_pos  <= std_logic_vector(to_unsigned(bullet_x_reg, x_pos'length));
+   y_pos  <= std_logic_vector(to_unsigned(bullet_y_reg, y_pos'length));
    
+   -- Rachel Cazzola
    -- combinational circuit
    process(state_reg, reset, start, stop, pix_x, pix_y, frame_update, draw_addr_reg, bullet_x_reg, bullet_y_reg, bullet_button, x_mid_start, pix_en, off_screen)
       variable rbits: std_logic_vector(0 to BULLET_ADDR_MAX);
@@ -71,10 +84,10 @@ architecture rtl of Bullet is
             if (bullet_button = '1') then
                bullet_x_next  <= to_integer(unsigned(x_mid_start)); -- x_mid_start := std_logic_vector(to_unsigned(x_reg + ROCKET_WIDTH/2,x_mid'length));
                bullet_y_next <= BULLET_Y_START;
-               state_next <= ACTIVE;  
+               state_next <= DRAW;
             end if;
 
-         when ACTIVE =>
+         when DRAW =>
             pix_x_int := to_integer(unsigned(pix_x));
             pix_y_int := to_integer(unsigned(pix_y));
 
@@ -89,7 +102,7 @@ architecture rtl of Bullet is
             -- draw the bullet if within the borders of the current bullet position
             if (pix_en = '1') then
                 if (pix_y_int >= bullet_y_reg and pix_y_int < bullet_y_reg + BULLET_HEIGHT) then
-                    if (pix_x_int >= bullet_x_reg and pix_x_int < bullet_x_reg+BULLET_WIDTH) then        
+                    if (pix_x_int >= bullet_x_reg and pix_x_int < bullet_x_reg+BULLET_WIDTH) then
                         pix_bullet_en <= rbits(draw_addr_reg);
                         --color <= COLOR_BLUE;
                         if (draw_addr_reg /= BULLET_ADDR_MAX) then
@@ -110,15 +123,15 @@ architecture rtl of Bullet is
          when INTER_FRAME =>
             -- single clock cycle frame intermission to increment the bullet_y_reg
             bullet_y_next <= bullet_y_reg - BULLET_SPEED;
-            state_next <= ACTIVE;
+            state_next <= DRAW;
 
             if (stop = '1') then
                state_next <= IDLE;
             elsif (off_screen = '1') then
                state_next <= IDLE;
-            end if;      
+            end if;
 
       end case;
-   end process;              
+   end process;
    
 end rtl;

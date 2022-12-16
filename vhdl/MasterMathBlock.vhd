@@ -55,12 +55,21 @@ entity MasterMathBlock is
       pix_en:       out std_logic;
       color:        out std_logic_vector(23 downto 0);
       
-      score_increase: out std_logic
+      -- Ben Bean
+      -- collison, score, and lives
+      rocket_mid_x:   in  std_logic_vector(SCREEN_WIDTH_NB-1 downto 0);
+      bullet_x:       in  std_logic_vector(SCREEN_WIDTH_NB-1 downto 0);
+      bullet_y:       in  std_logic_vector(SCREEN_HEIGHT_NB-1 downto 0);
+      bullet_active:  in  std_logic;
+      score_increase: out std_logic;
+      life_decrease:  out std_logic
+      
+      -- Rachel Cazzola
    );
 end MasterMathBlock;
 
 architecture rtl of MasterMathBlock is
-   type state_type is (IDLE, COUNT_ACTIVE, GEN_FIRST, GEN_SECOND, GEN_OP, GEN_RESULT, GEN_INCORRECT, GEN_ASCII, ACTIVATE_BLOCK);
+   type state_type is (IDLE, CHECK_COLLISION, COUNT_ACTIVE, GEN_FIRST, GEN_SECOND, GEN_OP, GEN_RESULT, GEN_INCORRECT, GEN_ASCII, ACTIVATE_BLOCK);
    signal state_reg, state_next: state_type;
 
    -- Arrays of values, one value per math block
@@ -68,12 +77,16 @@ architecture rtl of MasterMathBlock is
    type std_logic_array  is array(0 to NUM_MB-1) of std_logic;
    type vectorX_Array    is array(0 to NUM_MB-1) of std_logic_vector(SCREEN_WIDTH_NB-1 downto 0);
    type vectorAsciiArray is array(0 to NUM_MB-1) of std_logic_vector(MATH_BLOCK_MAX_CHARS*ASCII_NB-1 downto 0);
+   type vectorPosArray   is array(0 to NUM_MB-1) of std_logic_vector(SCREEN_HEIGHT_NB-1 downto 0);
    type vectorColorArray is array(0 to NUM_MB-1) of std_logic_vector(23 downto 0);
    
    signal readys : std_logic_array;
    signal starts_reg, starts_next : std_logic_array;
+   signal stops_reg, stops_next : std_logic_array;
    signal xs_reg, xs_next : vectorX_Array;
    signal asciis_reg, asciis_next : vectorAsciiArray;
+   signal y_poss: vectorPosArray;
+   signal widths: vectorX_Array;
    signal pix_ens : std_logic_array;
    signal colors : vectorColorArray;
    signal set_correct_reg, set_correct_next : std_logic_array;
@@ -111,6 +124,7 @@ begin
          state_reg         <= IDLE;
          for i in 0 to NUM_MB-1 loop
             starts_reg(i)  <= '0';
+            stops_reg(i)   <= '0';
             xs_reg(i)      <= (others => '0');
             asciis_reg(i)  <= (others => '0');
             set_correct_reg(i) <= '0';
@@ -130,6 +144,7 @@ begin
          state_reg         <= state_next;
          for i in 0 to NUM_MB-1 loop
             starts_reg(i)  <= starts_next(i);
+            stops_reg(i)   <= stops_next(i);
             xs_reg(i)      <= xs_next(i);
             asciis_reg(i)  <= asciis_next(i);
             set_correct_reg(i) <= set_correct_next(i);
@@ -149,7 +164,7 @@ begin
    end process;
 
    -- combinational circuit
-   process(state_reg, starts_reg, xs_reg, asciis_reg, set_correct_reg, frame_update, n_interframes_reg, n_correct_reg, n_incorrect_reg, gen_first_reg, gen_second_reg, gen_op_reg, gen_result_reg, gen_num_reg, gen_ascii_reg, first_ready_reg, i_reg, randval, readys)
+   process(state_reg, starts_reg, stops_reg, xs_reg, asciis_reg, y_poss, widths, get_correct, set_correct_reg, pix_y, frame_update, rocket_mid_x, bullet_x, bullet_y, bullet_active, n_interframes_reg, n_correct_reg, n_incorrect_reg, gen_first_reg, gen_second_reg, gen_op_reg, gen_result_reg, gen_num_reg, gen_ascii_reg, first_ready_reg, i_reg, randval, readys)
       variable create_new : std_logic;
       variable create_correct : std_logic;
       variable rand_t3  : std_logic_vector(1 downto 0);
@@ -163,10 +178,17 @@ begin
       variable randop : op_type;
       variable a1 : std_logic_vector(ASCII_NB-1 downto 0);
       variable a2 : std_logic_vector(ASCII_NB-1 downto 0);
+      variable int_x:        integer range 0 to SCREEN_WIDTH_MAX-1;
+      variable int_width:    integer range 0 to SCREEN_WIDTH_MAX-1;
+      variable int_y:        integer range 0 to SCREEN_HEIGHT_MAX-1;
+      variable int_rocket_x: integer range 0 to SCREEN_WIDTH_MAX-1;
+      variable int_bullet_x: integer range 0 to SCREEN_WIDTH_MAX-1;
+      variable int_bullet_y: integer range 0 to SCREEN_HEIGHT_MAX-1;
    begin
       state_next         <= state_reg;
       for i in 0 to NUM_MB-1 loop
          starts_next(i)  <= starts_reg(i);
+         stops_next(i)   <= stops_reg(i);
          xs_next(i)      <= xs_reg(i);
          asciis_next(i)  <= asciis_reg(i);
          set_correct_next(i) <= set_correct_reg(i);
@@ -188,6 +210,9 @@ begin
       rand_127 := randval(6 downto 0);
       rand_511 := randval(8 downto 0);
       int_rand_511 := to_integer(unsigned(rand_511));
+
+      score_increase <= '0';
+      life_decrease  <= '0';
 
       case state_reg is
          when IDLE =>
@@ -214,16 +239,74 @@ begin
                      create_new := '1';
                   end if;
                end if;
+
+               -- Every clock cycle do something. If not (A) then (B).
+               --   (A) create a new math block
+               --   (B) check for a collision
                if (create_new = '1') then
                   -- get ready for the next state
                   i_next <= 0;
                   first_ready_next <= NUM_MB;
-                  -- go check if we have math blocks available
+                  
+                  -- (A) go check if we have math blocks available
                   state_next <= COUNT_ACTIVE;
                else
                   n_interframes_next <= n_interframes_reg + 1;
+
+                  -- (B) go check for a collision
+                  state_next <= CHECK_COLLISION;
                end if;
             end if;
+
+         when CHECK_COLLISION =>
+            score_increase <= '0';
+            life_decrease  <= '0';
+
+            for i in 0 to NUM_MB-1 loop
+               int_x        := to_integer(unsigned(xs_reg(i)));
+               int_y        := to_integer(unsigned(y_poss(i)));
+               int_width    := to_integer(unsigned(widths(i)));
+               int_rocket_x := to_integer(unsigned(rocket_mid_x));
+               int_bullet_x := to_integer(unsigned(bullet_x));
+
+               -- check for a player collision
+               if (int_y >= SCREEN_HEIGHT - ROCKET_HEIGHT - MATH_BLOCK_HEIGHT + 1 and
+                     int_x <= int_rocket_x + ROCKET_WIDTH / 2 - 1 and
+                     int_x >= int_rocket_x - ROCKET_WIDTH / 2 - int_width + 1) then
+
+                  stops_next(i) <= '1';
+                  if (get_correct(i) = '0') then
+                     score_increase <= '1';
+                  else
+                     life_decrease <= '1';
+                  end if;
+               end if;
+
+               -- check for a bullet collision
+               if (bullet_active = '1') then
+                  for p in 0 to 1 loop
+                     -- check for collision at the top and bottom of the bullet
+                     int_bullet_y := to_integer(unsigned(bullet_y));
+                     if p = 1 then
+                        int_bullet_y := int_bullet_y + BULLET_HEIGHT;
+                     end if;
+
+                     if (int_y <= int_bullet_y and
+                           int_y + MATH_BLOCK_HEIGHT >= int_bullet_y and
+                           int_x <= int_bullet_x and
+                           int_x + int_width >= int_bullet_x) then
+
+                        stops_next(i) <= '1';
+                        if (get_correct(i) = '0') then
+                           life_decrease <= '1';
+                        else
+                           score_increase <= '1';
+                        end if;
+                     end if;
+                  end loop; -- top and bottom
+               end if; -- bullet_active
+
+            end loop;
 
          when COUNT_ACTIVE =>
             if (i_reg < NUM_MB) then
@@ -469,6 +552,7 @@ begin
          when ACTIVATE_BLOCK =>
             -- set up and enable the block
             starts_next(first_ready_reg) <= '1';
+            stops_next(first_ready_reg)  <= '0';
             xs_next(first_ready_reg)     <= std_logic_vector(to_unsigned(   to_integer(unsigned(rand_511)) + (SCREEN_WIDTH - 512 - MATH_BLOCK_MAX_WIDTH/2),   11));
             asciis_next(first_ready_reg) <= gen_ascii_reg;
 
@@ -504,7 +588,7 @@ begin
          reset        => reset,         -- in
          clk          => clk,           -- in
          start        => starts_reg(i), -- in
-         stop         => stop,          -- in
+         stop         => stops_reg(i),  -- in
          ready        => readys(i),     -- out
 
          -- correctness
@@ -518,6 +602,8 @@ begin
 
          -- vertical speed of the block
          y_increment  => y_increment,   -- in
+         y_pos        => y_poss(i),     -- out
+         draw_width   => widths(i),     -- out
 
          -- the pixel that is currently being rendered
          pix_x        => pix_x,         -- in
