@@ -204,14 +204,14 @@ begin
       first_ready_next   <= first_ready_reg;
       i_next             <= i_reg;
 
-      read_rand <= '0';
+      read_rand      <= '0';
+      bullet_stop    <= '0';
+      score_increase <= '0';
+      life_decrease  <= '0';
 
       rand_127 := randval(6 downto 0);
       rand_511 := randval(8 downto 0);
       int_rand_511 := to_integer(unsigned(rand_511));
-
-      score_increase <= '0';
-      life_decrease  <= '0';
 
       case state_reg is
          when IDLE =>
@@ -269,42 +269,49 @@ begin
                int_rocket_x := to_integer(unsigned(rocket_mid_x));
                int_bullet_x := to_integer(unsigned(bullet_x));
 
-               -- check for a player collision
-               if (int_y >= SCREEN_HEIGHT - ROCKET_HEIGHT - MATH_BLOCK_HEIGHT + 1 and
-                     int_x <= int_rocket_x + ROCKET_WIDTH / 2 - 1 and
-                     int_x >= int_rocket_x - ROCKET_WIDTH / 2 - int_width + 1) then
+               -- only check for collisions on active blocks
+               if (readys(i) = '0' and stops_reg(i) = '0') then
 
-                  stops_next(i) <= '1';
-                  if (get_correct(i) = '0') then
-                     score_increase <= '1';
-                  else
-                     life_decrease <= '1';
+                  -- check for a player collision
+                  if (int_y >= SCREEN_HEIGHT - ROCKET_HEIGHT - MATH_BLOCK_HEIGHT + 1 and
+                        int_x <= int_rocket_x + ROCKET_WIDTH / 2 - 1 and
+                        int_x >= int_rocket_x - ROCKET_WIDTH / 2 - int_width + 1) then
+
+                     stops_next(i) <= '1';
+                     if (get_correct(i) = '0') then
+                        score_increase <= '1';
+                     else
+                        life_decrease <= '1';
+                     end if;
                   end if;
-               end if;
 
-               -- check for a bullet collision
-               if (bullet_active = '1') then
-                  for p in 0 to 1 loop
-                     -- check for collision at the top and bottom of the bullet
-                     int_bullet_y := to_integer(unsigned(bullet_y));
-                     if p = 1 then
-                        int_bullet_y := int_bullet_y + BULLET_HEIGHT;
-                     end if;
-
-                     if (int_y <= int_bullet_y and
-                           int_y + MATH_BLOCK_HEIGHT >= int_bullet_y and
-                           int_x <= int_bullet_x and
-                           int_x + int_width >= int_bullet_x) then
-
-                        stops_next(i) <= '1';
-                        if (get_correct(i) = '0') then
-                           life_decrease <= '1';
-                        else
-                           score_increase <= '1';
+                  -- check for a bullet collision
+                  if (bullet_active = '1') then
+                     for p in 0 to 1 loop
+                        -- check for collision at the top and bottom of the bullet
+                        int_bullet_y := to_integer(unsigned(bullet_y));
+                        if p = 1 then
+                           int_bullet_y := int_bullet_y + BULLET_HEIGHT;
                         end if;
-                     end if;
-                  end loop; -- top and bottom
-               end if; -- bullet_active
+
+                        if (int_y <= int_bullet_y and
+                              int_y + MATH_BLOCK_HEIGHT >= int_bullet_y and
+                              int_x <= int_bullet_x and
+                              int_x + int_width >= int_bullet_x) then
+
+                           stops_next(i) <= '1';
+                           bullet_stop <= '1';
+
+                           if (get_correct(i) = '0') then
+                              life_decrease <= '1';
+                           else
+                              score_increase <= '1';
+                           end if;
+                        end if;
+                     end loop; -- top and bottom
+                  end if; -- bullet_active
+
+               end if; -- stop(i) = '0'
 
             end loop;
 

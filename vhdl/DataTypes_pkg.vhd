@@ -2,19 +2,7 @@
 -- Company: 
 -- Engineer: Rachel Cazzola, Benjamin Bean
 -- 
--- Create Date:
--- Design Name: 
 -- Module Name:    DataTypes_pkg - Behavioral 
--- Project Name: 
--- Target Devices: 
--- Tool versions: 
--- Description: 
---
--- Dependencies: 
---
--- Revision: 
--- Revision 0.01 - File Created
--- Additional Comments: 
 --
 ----------------------------------------------------------------------------------
 
