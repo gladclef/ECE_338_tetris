@@ -287,9 +287,9 @@ begin
 
                      stops_next(i) <= '1';
                      if (get_correct(i) = '0') then
-                        score_increase <= '1';
-                     else
                         life_decrease <= '1';
+                     else
+                        score_increase <= '1';
                      end if;
                   end if;
 
@@ -311,9 +311,9 @@ begin
                            bullet_stop <= '1';
 
                            if (get_correct(i) = '0') then
-                              life_decrease <= '1';
-                           else
                               score_increase <= '1';
+                           else
+                              life_decrease <= '1';
                            end if;
                         end if;
                      end loop; -- top and bottom
