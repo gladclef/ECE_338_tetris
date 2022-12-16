@@ -10,8 +10,8 @@ use work.DataTypes_pkg.all;
 entity ScoreAndLives is
    Port (
       clk, reset, start, stop, frame_update: in std_logic;
-      pix_x: in std_logic_vector(10 downto 0);
-      pix_y: in std_logic_vector(9 downto 0);
+      pix_x: in std_logic_vector(SCREEN_WIDTH_NB-1 downto 0);
+      pix_y: in std_logic_vector(SCREEN_HEIGHT_NB-1 downto 0);
       life: in std_logic_vector(1 downto 0);
       score_digit0, score_digit1 : in std_logic_vector(5 downto 0);
       pix_LivesScore_en : out std_logic;
@@ -73,8 +73,8 @@ begin
 
    -- combinational circuit
    process(state_reg, reset, start, lives_reg, score_reg, lives_text_count, score_text_count, lives_text_ready, score_text_ready, pix_x, pix_y, block_x_reg, block_y_reg, lives_text_width_reg, score_text_width_reg, lives_text_pixel_mask, score_text_pixel_mask, frame_update, stop, score_digit0, score_digit1)
-      variable pix_x_int: integer range 0 to SCREEN_WIDTH_MAX;
-      variable pix_y_int: integer range 0 to SCREEN_HEIGHT_MAX;
+      variable pix_x_int: integer range 0 to SCREEN_WIDTH_MAX-1;
+      variable pix_y_int: integer range 0 to SCREEN_HEIGHT_MAX-1;
    begin
       state_next <= state_reg;
       block_x_next <= block_x_reg;

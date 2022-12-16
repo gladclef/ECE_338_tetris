@@ -45,8 +45,8 @@ entity MasterMathBlock is
       read_rand:    out std_logic;
 
       -- pixel value currently being drawn
-      pix_x:        in std_logic_vector(10 downto 0);
-      pix_y:        in std_logic_vector(9 downto 0);
+      pix_x:        in std_logic_vector(SCREEN_WIDTH_NB-1 downto 0);
+      pix_y:        in std_logic_vector(SCREEN_HEIGHT_NB-1 downto 0);
 
       -- the one cycle frame sync at the end of every frame
       frame_update: in std_logic;
@@ -66,7 +66,7 @@ architecture rtl of MasterMathBlock is
    -- Arrays of values, one value per math block
    constant NUM_MB : integer := 4;
    type std_logic_array  is array(0 to NUM_MB-1) of std_logic;
-   type vectorX_Array    is array(0 to NUM_MB-1) of std_logic_vector(10 downto 0);
+   type vectorX_Array    is array(0 to NUM_MB-1) of std_logic_vector(SCREEN_WIDTH_NB-1 downto 0);
    type vectorAsciiArray is array(0 to NUM_MB-1) of std_logic_vector(MATH_BLOCK_MAX_CHARS*ASCII_NB-1 downto 0);
    type vectorColorArray is array(0 to NUM_MB-1) of std_logic_vector(23 downto 0);
    

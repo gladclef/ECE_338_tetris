@@ -59,15 +59,15 @@ entity MathBlock is
       is_correct:   out std_logic;
 
       -- where to place the block, and what it should display
-      x:            in std_logic_vector(10 downto 0);
-      ascii:        in std_logic_vector(MATH_BLOCK_MAX_CHARS*ASCII_NB-1 downto 0);
+      x:             in std_logic_vector(SCREEN_WIDTH_NB-1 downto 0);
+      ascii:         in std_logic_vector(MATH_BLOCK_MAX_CHARS*ASCII_NB-1 downto 0);
 
       -- vertical speed of the block
       y_increment:  in std_logic_vector(MAX_FALL_RATE_NB-1 downto 0);
 
       -- the pixel that is currently being drawn
-      pix_x:        in std_logic_vector(10 downto 0);
-      pix_y:        in std_logic_vector(9 downto 0);
+      pix_x:         in std_logic_vector(SCREEN_WIDTH_NB-1 downto 0);
+      pix_y:         in std_logic_vector(SCREEN_HEIGHT_NB-1 downto 0);
 
       -- math block draw enable for the given pix_x/pix_y, and the color for that pixel
       pix_mb_en:    out std_logic;
@@ -83,8 +83,8 @@ architecture rtl of MathBlock is
    signal state_reg, state_next: state_type;
 
    -- the current x and y locations of the block
-   signal block_x_reg, block_x_next: integer range 0 to 1023;
-   signal block_y_reg, block_y_next: integer range 0 to 511;
+   signal block_x_reg, block_x_next: integer range 0 to SCREEN_WIDTH_MAX-1;
+   signal block_y_reg, block_y_next: integer range 0 to SCREEN_HEIGHT_MAX-1;
    signal off_screen: std_logic;
 
    -- latched values when start gets asserted
@@ -130,8 +130,8 @@ begin
 
    -- combinational circuit
    process(state_reg, reset, start, x, ascii, correctness, ascii_reg, is_correct_reg, text_count, text_ready, pix_x, pix_y, block_x_reg, block_y_reg, text_width_reg, text_pixel_mask, y_increment, frame_update, stop, off_screen)
-      variable int_pix_x: integer range 0 to SCREEN_WIDTH_MAX;
-      variable int_pix_y: integer range 0 to SCREEN_HEIGHT_MAX;
+      variable int_pix_x: integer range 0 to SCREEN_WIDTH_MAX-1;
+      variable int_pix_y: integer range 0 to SCREEN_HEIGHT_MAX-1;
       variable var_pix_en: std_logic;
    begin
       state_next <= state_reg;

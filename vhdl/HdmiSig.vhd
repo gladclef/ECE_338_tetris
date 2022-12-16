@@ -62,9 +62,11 @@ begin
       hdmi_hsync => hdmi_hsync_sig,
       hdmi_vsync => hdmi_vsync_sig,
       hdmi_enable => hdmi_enable,
-      pixel_x => pixel_x,
-      pixel_y => pixel_y
+      pixel_x => pixel_x_plus,
+      pixel_y => pixel_y_plus
    );
+   pixel_x <= pixel_x_plus(SCREEN_WIDTH_NB-1 downto 0);
+   pixel_y <= pixel_y_plus(SCREEN_HEIGHT_NB-1 downto 0);
 
    process (clk, reset)
    begin

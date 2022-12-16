@@ -41,7 +41,7 @@ architecture rtl of TestingValues is
 begin
 
    start <= '1';
-   math_block_start_x <= "11100011000";
+   math_block_start_x <= std_logic_vector(to_unsigned(300, math_block_start_x'length));
    -- 4  +  5  =  9
    -- 52 43 53 61 57
    --x34 2B 35 3D 39

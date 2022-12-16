@@ -23,8 +23,8 @@ end Bullet;
 architecture rtl of Bullet is
    type state_type is (IDLE, ACTIVE, INTER_FRAME);
    
-   signal bullet_x_reg, bullet_x_next: integer range 0 to SCREEN_WIDTH_MAX;
-   signal bullet_y_reg, bullet_y_next: integer range 0 to SCREEN_HEIGHT_MAX;
+   signal bullet_x_reg, bullet_x_next: integer range 0 to SCREEN_WIDTH_MAX-1;
+   signal bullet_y_reg, bullet_y_next: integer range 0 to SCREEN_HEIGHT_MAX-1;
    signal off_screen: std_logic;
    signal state_reg, state_next: state_type;
    signal draw_addr_reg, draw_addr_next: integer range 0 to BULLET_ADDR_MAX;
@@ -53,8 +53,8 @@ architecture rtl of Bullet is
    -- combinational circuit
    process(state_reg, reset, start, stop, pix_x, pix_y, frame_update, draw_addr_reg, bullet_x_reg, bullet_y_reg, bullet_button, x_mid_start, pix_en, off_screen)
       variable rbits: std_logic_vector(0 to BULLET_ADDR_MAX);
-      variable pix_x_int: integer range -SCREEN_WIDTH_MAX to SCREEN_WIDTH_MAX;
-      variable pix_y_int: integer range 0 to SCREEN_HEIGHT_MAX;
+      variable pix_x_int: integer range -(SCREEN_WIDTH_MAX-1) to (SCREEN_WIDTH_MAX-1);
+      variable pix_y_int: integer range 0 to SCREEN_HEIGHT_MAX-1;
       variable y_increment_var: integer range -ROCKET_MAX_MOVE_RATE to ROCKET_MAX_MOVE_RATE; --update to y values
 
    begin
