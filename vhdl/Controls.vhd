@@ -110,8 +110,8 @@ begin
    end process;
  
    -- Ben Bean & Rachel Cazzola
-   x_increment <= std_logic_vector(to_signed(2,x_increment'length))  when (zybo_button_right = '1' or ctrl_right = '1') else
-                  std_logic_vector(to_signed(-2,x_increment'length)) when (zybo_button_left = '1'  or ctrl_left = '1')  else
+   x_increment <= std_logic_vector(to_signed(5,x_increment'length))  when (zybo_button_right = '1' or ctrl_right = '1') else
+                  std_logic_vector(to_signed(-5,x_increment'length)) when (zybo_button_left = '1'  or ctrl_left = '1')  else
                   std_logic_vector(to_unsigned(x_reg, x_increment'length));
 
    --Ben Bean
