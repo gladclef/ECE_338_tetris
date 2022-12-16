@@ -23,6 +23,7 @@ architecture rtl of ScoreCounter is
    --signals for updating score
    signal score_digit0_reg, score_digit1_reg: std_logic_vector(5 downto 0);
    signal score_digit0_next, score_digit1_next: std_logic_vector(5 downto 0);
+   signal life_digit_reg, life_digit_next: std_logic_vector(5 downto 0);
    signal score_reg, score_next: integer range 0 to 99;
    signal life_reg, life_next: integer range 0 to 3;
    
@@ -34,18 +35,20 @@ begin
       if (reset = '1') then
         score_digit0_reg <= (others => '0');
         score_digit1_reg <= (others => '0');
-        score_reg <= 13;
+        life_digit <= (others => '0');
+        score_reg <= 0;
         life_reg <= 0;
       elsif (rising_edge(clk)) then
          score_digit0_reg <= score_digit0_next;
          score_digit1_reg <= score_digit1_next;
+         life_digit_reg <= life_digit_next;
          score_reg <= score_next;
          life_reg <= life_next;
       end if;
    end process;      
    
    -- combinational circuit
-   process(score_increase, score_digit0_reg, score_digit1_reg, score_reg, decrease_life, life_reg)
+   process(score_increase, score_digit0_reg, score_digit1_reg, score_reg, decrease_life, life_reg, life_digit_reg)
    
    begin
       
@@ -63,8 +66,10 @@ begin
       
       score_digit0 <= std_logic_vector(score_digit0_reg);
       score_digit1 <= std_logic_vector(score_digit1_reg);
+      life_digit <= std_logic_vector(life_digit_reg);
       score_digit0_next <= std_logic_vector(to_unsigned(48 + score_reg mod 10,ASCII_NB));
       score_digit1_next <= std_logic_vector(to_unsigned(48 + score_reg / 10,ASCII_NB)); 
+      life_digit_next <= std_logic_vector(to_unsigned(48 + life_reg, ASCII_NB));
       y_increment <= std_logic_vector(to_unsigned( score_reg / 20 + 1, y_increment'length ));
             
 end rtl;        
