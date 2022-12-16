@@ -570,6 +570,8 @@ begin
             color_choices_next(first_ready_reg) <= std_logic_vector(to_unsigned( int_rand_127 mod 8, 3 ));
             read_rand <= '1';
 
+            state_next <= ACTIVATE_BLOCK;
+
          when ACTIVATE_BLOCK =>
             -- set up and enable the block
             starts_next(first_ready_reg) <= '1';
