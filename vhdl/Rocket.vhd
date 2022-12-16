@@ -62,7 +62,7 @@ architecture rtl of Rocket is
    type state_type is (IDLE, RENDER, INTER_FRAME);
 
    signal state_reg, state_next: state_type;
-   signal x_reg, x_next: integer range -SCREEN_WIDTH_MAX to SCREEN_WIDTH_MAX;
+   signal x_reg, x_next: integer range -(SCREEN_WIDTH_MAX-1) to (SCREEN_WIDTH_MAX-1);
    signal draw_addr_reg, draw_addr_next: integer range 0 to ROCKET_ADDR_MAX;
 begin
 
@@ -83,8 +83,8 @@ begin
    -- combinational circuit
    process(state_reg, reset, start, stop, x_increment, pix_en, pix_x, pix_y, x_reg, frame_update, draw_addr_reg)
       variable rbits: std_logic_vector(0 to ROCKET_ADDR_MAX);
-      variable pix_x_int: integer range -SCREEN_WIDTH_MAX to SCREEN_WIDTH_MAX;
-      variable pix_y_int: integer range 0 to SCREEN_HEIGHT_MAX;
+      variable pix_x_int: integer range -(SCREEN_WIDTH_MAX-1) to (SCREEN_WIDTH_MAX-1);
+      variable pix_y_int: integer range 0 to SCREEN_HEIGHT_MAX-1;
       variable x_increment_var: integer range -ROCKET_MAX_MOVE_RATE to ROCKET_MAX_MOVE_RATE;
    begin
       state_next <= state_reg;

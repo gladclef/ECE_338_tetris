@@ -48,33 +48,35 @@ use work.DataTypes_pkg.all;
 entity MathBlock is
    Port (
       -- standard signals
-      reset:        in std_logic;
-      clk:          in std_logic;
-      start:        in std_logic;
-      stop:         in std_logic;
-      ready:        out std_logic;
+      reset:         in std_logic;
+      clk:           in std_logic;
+      start:         in std_logic;
+      stop:          in std_logic;
+      ready:         out std_logic;
 
       -- correctness
-      correctness:  in std_logic;
-      is_correct:   out std_logic;
+      correctness:   in std_logic;
+      is_correct:    out std_logic;
 
       -- where to place the block, and what it should display
-      x:            in std_logic_vector(10 downto 0);
-      ascii:        in std_logic_vector(MATH_BLOCK_MAX_CHARS*ASCII_NB-1 downto 0);
+      x:             in std_logic_vector(SCREEN_WIDTH_NB-1 downto 0);
+      ascii:         in std_logic_vector(MATH_BLOCK_MAX_CHARS*ASCII_NB-1 downto 0);
 
       -- vertical speed of the block
-      y_increment:  in std_logic_vector(MAX_FALL_RATE_NB-1 downto 0);
+      y_increment:   in std_logic_vector(MAX_FALL_RATE_NB-1 downto 0);
+      y_pos:         out std_logic_vector(SCREEN_HEIGHT_NB-1 downto 0);
+      draw_width:    out std_logic_vector(SCREEN_WIDTH_NB-1 downto 0);
 
       -- the pixel that is currently being drawn
-      pix_x:        in std_logic_vector(10 downto 0);
-      pix_y:        in std_logic_vector(9 downto 0);
+      pix_x:         in std_logic_vector(SCREEN_WIDTH_NB-1 downto 0);
+      pix_y:         in std_logic_vector(SCREEN_HEIGHT_NB-1 downto 0);
 
       -- math block draw enable for the given pix_x/pix_y, and the color for that pixel
-      pix_mb_en:    out std_logic;
-      color:        out std_logic_vector(23 downto 0);
+      pix_mb_en:     out std_logic;
+      color:         out std_logic_vector(23 downto 0);
 
       -- the one cycle frame sync at the end of every frame
-      frame_update: in std_logic
+      frame_update:  in std_logic
    );
 end MathBlock;
 
@@ -83,8 +85,8 @@ architecture rtl of MathBlock is
    signal state_reg, state_next: state_type;
 
    -- the current x and y locations of the block
-   signal block_x_reg, block_x_next: integer range 0 to 1023;
-   signal block_y_reg, block_y_next: integer range 0 to 511;
+   signal block_x_reg, block_x_next: integer range 0 to SCREEN_WIDTH_MAX-1;
+   signal block_y_reg, block_y_next: integer range 0 to SCREEN_HEIGHT_MAX-1;
    signal off_screen: std_logic;
 
    -- latched values when start gets asserted
@@ -125,13 +127,13 @@ begin
       end if;
    end process;
 
-   off_screen <= '1' when (block_y_reg = SCREEN_HEIGHT - ROCKET_HEIGHT - MATH_BLOCK_HEIGHT) else '0';
+   off_screen <= '1' when (block_y_reg >= SCREEN_HEIGHT - MATH_BLOCK_HEIGHT) else '0';
    ready <= '1' when state_reg = IDLE else '0';
 
    -- combinational circuit
    process(state_reg, reset, start, x, ascii, correctness, ascii_reg, is_correct_reg, text_count, text_ready, pix_x, pix_y, block_x_reg, block_y_reg, text_width_reg, text_pixel_mask, y_increment, frame_update, stop, off_screen)
-      variable int_pix_x: integer range 0 to SCREEN_WIDTH_MAX;
-      variable int_pix_y: integer range 0 to SCREEN_HEIGHT_MAX;
+      variable int_pix_x: integer range 0 to SCREEN_WIDTH_MAX-1;
+      variable int_pix_y: integer range 0 to SCREEN_HEIGHT_MAX-1;
       variable var_pix_en: std_logic;
    begin
       state_next <= state_reg;
@@ -213,10 +215,6 @@ begin
 
             if (frame_update = '1') then
                state_next <= INTER_FRAME;
-            elsif (stop = '1') then
-               state_next <= IDLE;
-            elsif (off_screen = '1') then
-               state_next <= IDLE;
             end if;
 
             pix_mb_en <= var_pix_en;
@@ -236,6 +234,8 @@ begin
    end process;
 
    is_correct <= is_correct_reg;
+   y_pos <= std_logic_vector(to_unsigned(block_y_reg, y_pos'length));
+   draw_width <= std_logic_vector(to_unsigned(text_width_reg+5, draw_width'length));
 
    render_text: entity work.RenderText(rtl)
    port map (
