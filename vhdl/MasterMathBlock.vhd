@@ -550,6 +550,7 @@ begin
 
       pix_en <= pix_en_any;
       color  <= var_color;
+      score_increase <= '0';
         
    end process;
    

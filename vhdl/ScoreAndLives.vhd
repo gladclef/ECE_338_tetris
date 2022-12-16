@@ -116,10 +116,10 @@ begin
                if (pix_x_int = block_x_reg) then                         -- left border
                   pix_LivesScore_en <= '1';
                end if;
-               if (pix_x_int = block_x_reg + lives_text_width_reg+5-1) then      -- right border
+               if (pix_x_int = block_x_reg + score_text_width_reg+5-1) then      -- right border
                   pix_LivesScore_en <= '1';
                end if;
-               if (pix_x_int > block_x_reg and pix_x_int < block_x_reg + lives_text_width_reg+5) then
+               if (pix_x_int > block_x_reg and pix_x_int < block_x_reg + score_text_width_reg+5) then
                    if (pix_y_int = block_y_reg) then                     -- top border
                       pix_LivesScore_en <= '1';
                    end if;
@@ -156,7 +156,8 @@ begin
 
          when INTER_FRAME =>
             -- single clock cycle frame intermission to increment the block_y_reg
-            state_next <= DRAW;
+            state_next <= ASCII_START;
+            score_next <= score_digit1 & score_digit0 & ASCII_CLN & ASCII_E & ASCII_R & ASCII_O & ASCII_C & ASCII_S;
 
             if (stop = '1') then
                state_next <= IDLE;

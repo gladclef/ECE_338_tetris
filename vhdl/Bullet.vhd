@@ -47,8 +47,8 @@ architecture rtl of Bullet is
       end if;
    end process;
    
-   off_screen <= '1' when (bullet_y_reg <= BULLET_SPEED and frame_update = '1') else '0';
-   color <= COLOR_BLUE; 
+   off_screen <= '1' when (bullet_y_reg <= BULLET_SPEED) else '0';
+   color <= COLOR_PURPLE; 
    
    -- combinational circuit
    process(state_reg, reset, start, stop, pix_x, pix_y, frame_update, draw_addr_reg, bullet_x_reg, bullet_y_reg, bullet_button, x_mid_start, pix_en, off_screen)
@@ -102,8 +102,6 @@ architecture rtl of Bullet is
             if (frame_update = '1') then
                state_next <= INTER_FRAME;
             elsif (stop = '1') then
-               state_next <= IDLE;
-            elsif (off_screen = '1') then
                state_next <= IDLE;
             end if;
 
