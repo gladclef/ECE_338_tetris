@@ -62,6 +62,7 @@ package DataTypes_pkg is
    CONSTANT BULLET_X : integer := SCREEN_WIDTH/2 - ROCKET_WIDTH/2 - BULLET_WIDTH/2;
    CONSTANT BULLET_Y_START : integer := SCREEN_HEIGHT - ROCKET_HEIGHT - BULLET_HEIGHT;
    CONSTANT BULLET_ADDR_MAX : integer := 6; --BULLET_WIDTH*BULLET_HEIGHT-1;
+   CONSTANT BULLET_SPEED : integer := 10;
 
    CONSTANT ASCII_NB : integer := 6;
    CONSTANT ASCII_NUL : std_logic_vector(ASCII_NB-1 downto 0) := (others => '0');

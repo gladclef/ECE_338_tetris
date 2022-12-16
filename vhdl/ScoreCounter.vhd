@@ -27,8 +27,8 @@ begin
    process(clk, reset)
    begin
       if (reset = '1') then
-        score_digit0_reg <= (others => '0');
-        score_digit1_reg <= (others => '0');
+        score_digit0_reg <= "011100";--(others => '0');
+        score_digit1_reg <= "110011"; --(others => '0');
       elsif (rising_edge(clk)) then
          score_digit0_reg <= score_digit0_next;
          score_digit1_reg <= score_digit1_next;
