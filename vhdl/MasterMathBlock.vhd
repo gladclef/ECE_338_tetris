@@ -64,8 +64,6 @@ entity MasterMathBlock is
       score_increase: out std_logic;
       life_decrease:  out std_logic;
       bullet_stop:    out std_logic
-      
-      -- Rachel Cazzola
    );
 end MasterMathBlock;
 
@@ -600,7 +598,6 @@ begin
          is_correct   => get_correct(i),     -- out
 
          -- where to place the block, and what it should display
-         --x            => (others => '0'), -- in
          x            => xs_reg(i),     -- in
          ascii        => asciis_reg(i), -- in
 
