@@ -72,7 +72,7 @@ begin
    color <= COLOR_WHITE;
 
    -- combinational circuit
-   process(state_reg, reset, start, lives_reg, score_reg, lives_text_count, score_text_count, lives_text_ready, score_text_ready, pix_x, pix_y, block_x_reg, block_y_reg, lives_text_width_reg, score_text_width_reg, lives_text_pixel_mask, score_text_pixel_mask, frame_update, stop, score_digit0, score_digit1)
+   process(state_reg, reset, start, lives_reg, score_reg, lives_text_count, score_text_count, lives_text_ready, score_text_ready, pix_x, pix_y, block_x_reg, block_y_reg, lives_text_width_reg, score_text_width_reg, lives_text_pixel_mask, score_text_pixel_mask, frame_update, stop, score_digit0, score_digit1, life_digit)
       variable pix_x_int: integer range 0 to SCREEN_WIDTH_MAX-1;
       variable pix_y_int: integer range 0 to SCREEN_HEIGHT_MAX-1;
    begin
