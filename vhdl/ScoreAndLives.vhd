@@ -53,7 +53,7 @@ begin
          state_reg <= IDLE;
          block_x_reg <= 0;
          block_y_reg <= SCREEN_HEIGHT-FULL_HEIGHT-1; -- -1 for 0 indexing of pix_y
-         lives_reg <= "000000" & "000000" & ASCII_CLN & ASCII_S & ASCII_E & ASCII_V & ASCII_I & ASCII_L;
+         lives_reg <= ASCII_0 & ASCII_0 & ASCII_CLN & ASCII_S & ASCII_E & ASCII_V & ASCII_I & ASCII_L;
          lives_text_width_reg <= 0;
          score_reg <= ASCII_0 & ASCII_0 & ASCII_CLN & ASCII_E & ASCII_R & ASCII_O & ASCII_C & ASCII_S; 
          score_text_width_reg <= 0;
