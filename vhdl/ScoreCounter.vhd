@@ -35,7 +35,7 @@ begin
       if (reset = '1') then
         score_digit0_reg <= (others => '0');
         score_digit1_reg <= (others => '0');
-        life_digit <= (others => '0');
+        life_digit_reg <= (others => '0');
         score_reg <= 0;
         life_reg <= 0;
       elsif (rising_edge(clk)) then
