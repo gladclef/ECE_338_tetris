@@ -157,8 +157,8 @@ begin
          when INTER_FRAME =>
             -- single clock cycle frame intermission to increment the block_y_reg
             state_next <= ASCII_START;
-            score_next <= score_digit1 & score_digit0 & ASCII_CLN & ASCII_E & ASCII_R & ASCII_O & ASCII_C & ASCII_S;
-            lives_next <= "000000" & life_digit & ASCII_CLN & ASCII_S & ASCII_E & ASCII_V & ASCII_I & ASCII_L;
+            score_next <= score_digit0 & score_digit1 & ASCII_CLN & ASCII_E & ASCII_R & ASCII_O & ASCII_C & ASCII_S;
+            lives_next <= life_digit & ASCII_0 & ASCII_CLN & ASCII_S & ASCII_E & ASCII_V & ASCII_I & ASCII_L;
 
             if (stop = '1') then
                state_next <= IDLE;
